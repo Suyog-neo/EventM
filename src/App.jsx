@@ -55,15 +55,15 @@ function AppLayout() {
          <Route path="/forgotpassword" element={<ForgotPass/>} />
 
         {/* Protected Routes */}
-        {/* {isAuthenticated ? (
-          role === 'admin' ? ( */}
+        {isAuthenticated ? (
+          role === 'admin' ? (
             <>
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/manage-events" element={<ManageEvents />} />
               <Route path="/admin/bookings" element={<ViewBookings />} />
               <Route path="*" element={<Navigate to="/admin" replace />} />
             </>
-           {/* ) : ( */}
+            ) : ( 
             <>
               <Route path="/user" element={<UserDashboard />} />
               <Route path="/user/events" element={<EventList />} />
@@ -71,10 +71,10 @@ function AppLayout() {
               <Route path="/user/upcoming-events" element={<UpcomingEvents />} />
               <Route path="*" element={<Navigate to="/user" replace />} />
             </>
-          {/* )
-        ) : ( */}
+          )
+        ) : ( 
           <Route path="*" element={<Navigate to="/login" replace />} />
-        {/* )} */}
+        )}
       </Routes>
       {shouldShowFooter && <Footer />}
     </Box>
