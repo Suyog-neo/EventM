@@ -55,9 +55,10 @@ export default function Login() {
       console.log("res", res.data)
 
       if (res.status === 200) {
-        dispatch(login({ email, role: 'admin', refresh: res.data.refresh, access: res.data.access }));
+        dispatch(login({ email, role: res.data.role, refresh: res.data.refresh, access: res.data.access }));
         setSnackbar({ open: true, message: 'Login successful!', severity: 'success' });
-        setTimeout(() => navigate('/admin'), 2000);
+        res.data.role === 'admin' ? setTimeout(() => navigate('/admin'), 1000) : setTimeout(() => navigate('/user'), 1000);
+
       } else {
         setSnackbar({ open: true, message: 'Invalid email or password.', severity: 'error' });
       }
@@ -74,7 +75,7 @@ export default function Login() {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        padding:{ xs:0, lg:2},
+        padding: { xs: 0, lg: 2 },
         backgroundImage:
           'url("https://static.vecteezy.com/system/resources/previews/050/897/969/non_2x/futuristic-dark-gray-wave-abstract-3d-background-with-realistic-gradient-color-on-background-vector.jpg")',
         backgroundSize: 'cover',
@@ -120,7 +121,7 @@ export default function Login() {
           elevation={0}
           sx={{
             width: '100%',
-            p: {xs:2 ,md:4,lg:4},
+            p: { xs: 2, md: 4, lg: 4 },
             backgroundColor: '#ffffffee',
             display: 'flex',
             flexDirection: 'column',
