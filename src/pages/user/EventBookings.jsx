@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
   Box,
@@ -45,9 +46,35 @@ export default function EventBookings() {
         </Typography>
 
         {bookings.length === 0 ? (
-          <Typography variant="h6" align="center" color="text.secondary">
-            You haven’t booked any events yet.
-          </Typography>
+          <Box v align="center" color="text.secondary">
+            <Box component='img' src='/noresultsfound.svg'
+              sx={{
+                height: {xs:'30vh',lg:'20vh'},
+                width:{xs:'60vw',lg:'20vw'},
+                 marginTop:{lg:10}
+              }}
+            >
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Typography ariant="h5" component={Link} to='/user/events'
+                sx={{
+                  border: '2px solid red',
+                  borderRadius: 1,
+                  width: {xs:1,lg:'20vw'},
+                  padding:1,
+                  display: 'flex',
+                  justifyContent: 'center',
+                 color:'black',
+                  textDecorationLine:'none',
+                  fontSize:"18px",
+                  marginTop:{lg:10}
+                }}
+              >
+                Expores Events
+              </Typography>
+            </Box>
+
+          </Box>
         ) : (
           <Grid container spacing={4} justifyContent="center">
             {bookings.map((event, i) => (

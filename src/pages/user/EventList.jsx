@@ -256,7 +256,7 @@ export default function EventList() {
                 >
                   <CardMedia
                     component="img"
-                    height="160"
+                    height="270"
                     image={event.image}
                     alt={event.title}
                     sx={{ objectFit: 'cover' }}
@@ -274,7 +274,7 @@ export default function EventList() {
                     <Typography variant="body2">🎭 Type: {event.type || 'General'}</Typography>
                     <Typography variant="body2">💲 Price: ${event.price}</Typography>
                   </CardContent>
-                  <CardActions sx={{ justifyContent: 'space-between', px: 2 }}>
+                  <CardActions sx={{ display: 'flex', justifyContent: 'flex-end',px: 2 }}>
                     <Chip
                       label={isSoldOut ? 'Sold Out' : `${event.seats} Seats Left`}
                       color={isSoldOut ? 'error' : 'info'}

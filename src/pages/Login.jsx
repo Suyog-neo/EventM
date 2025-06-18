@@ -16,32 +16,15 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { login } from '../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../apis/auth'
 
-// 🔐 Mock JWT generator
-const generateMockJWT = (username) => {
-  const header = {
-    alg: 'HS256',
-    typ: 'JWT',
-  };
 
-  const payload = {
-    username,
-    exp: Math.floor(Date.now() / 1000) + 60 * 60, // expires in 1 hour
-  };
-
-  const encode = (obj) => btoa(JSON.stringify(obj)); // base64 encoding
-
-  const token = `${encode(header)}.${encode(payload)}.mock-signature`;
-  localStorage.setItem('authToken', token);
-  console.log('Mock Token:', token); // ✅ visible in DevTools → Application tab
-  return token;
-};
 
 export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [fieldErrors, setFieldErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
@@ -55,30 +38,33 @@ export default function Login() {
   const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const { username, password } = credentials;
+    const { email, password } = credentials;
     const errors = {};
 
-    if (!username) errors.username = 'Username is required';
+    if (!email) errors.email = 'email is required';
     if (!password) errors.password = 'Password is required';
 
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
-    if (username === 'admin' && password === 'admin123') {
-      generateMockJWT(username);
-      dispatch(login({ username, role: 'admin' }));
-      setSnackbar({ open: true, message: 'Login successful!', severity: 'success' });
-      setTimeout(() => navigate('/admin'), 2000);
-    } else if (username === 'user' && password === 'user123') {
-      generateMockJWT(username);
-      dispatch(login({ username, role: 'user' }));
-      setSnackbar({ open: true, message: 'Login successful!', severity: 'success' });
-      setTimeout(() => navigate('/user'), 2000);
-    } else {
-      setSnackbar({ open: true, message: 'Invalid username or password.', severity: 'error' });
+
+    try {
+      const res = await loginUser(credentials)
+      console.log("res", res.data)
+
+      if (res.status === 200) {
+        dispatch(login({ email, role: 'admin', refresh: res.data.refresh, access: res.data.access }));
+        setSnackbar({ open: true, message: 'Login successful!', severity: 'success' });
+        setTimeout(() => navigate('/admin'), 2000);
+      } else {
+        setSnackbar({ open: true, message: 'Invalid email or password.', severity: 'error' });
+      }
+    } catch (error) {
+      console.log("Request setup error:", error.message);
     }
+
   };
 
   return (
@@ -88,7 +74,7 @@ export default function Login() {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        padding: 2,
+        padding:{ xs:0, lg:2},
         backgroundImage:
           'url("https://static.vecteezy.com/system/resources/previews/050/897/969/non_2x/futuristic-dark-gray-wave-abstract-3d-background-with-realistic-gradient-color-on-background-vector.jpg")',
         backgroundSize: 'cover',
@@ -134,7 +120,7 @@ export default function Login() {
           elevation={0}
           sx={{
             width: '100%',
-            p: 4,
+            p: {xs:2 ,md:4,lg:4},
             backgroundColor: '#ffffffee',
             display: 'flex',
             flexDirection: 'column',
@@ -153,14 +139,14 @@ export default function Login() {
               <div>
                 <TextField
                   fullWidth
-                  label="Username"
-                  name="username"
-                  value={credentials.username}
+                  label="email"
+                  name="email"
+                  value={credentials.email}
                   onChange={handleChange}
                   margin="normal"
                   variant="outlined"
-                  error={!!fieldErrors.username}
-                  helperText={fieldErrors.username}
+                  error={!!fieldErrors.email}
+                  helperText={fieldErrors.email}
                 />
                 <TextField
                   fullWidth
