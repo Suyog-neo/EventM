@@ -146,8 +146,8 @@ export default function EventList() {
     <Box
       sx={{
         minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
+        background: '#caf0f8',
+        py: 4,
       }}
     >
       {/* Main Content Area */}

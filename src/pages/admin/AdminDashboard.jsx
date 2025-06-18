@@ -31,8 +31,8 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-
-import Carousel from '../../components/Carousel'; // adjust path if needed
+import Carousel from '../../components/Carousel';
+import AdBanner from '../../components/AdBanner';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -164,7 +164,7 @@ export default function AdminDashboard() {
           justifyContent: 'center',
           alignItems: 'flex-start',
           minHeight: '100vh',
-          background: '#ffffff',
+          background: '#caf0f8',
           px: 2,
           py: 4,
         }}
@@ -172,21 +172,26 @@ export default function AdminDashboard() {
         <Box
           sx={{
             maxWidth: '1600px',
-            width: '120%',
-            backgroundColor: '#ffffffee',
+            width: '100%',
+            backgroundColor: '#ffffff',
             borderRadius: 2,
             boxShadow: '0px 10px 25px rgba(0, 0, 0, 0.1)',
             overflow: 'hidden',
             p: 3,
           }}
         >
+          {/* Ad Banner */}
+          <Box sx={{ px: 2, pt: 2, pb: 1 }}>
+            <AdBanner type="admin" />
+          </Box>
+
           <Typography
             variant="h3"
             fontWeight="bold"
             gutterBottom
             textAlign="center"
             color="#3f51b5"
-            sx={{ fontSize: { xs: '1.8rem', sm: '2.5rem', md: '3rem' } }}
+            sx={{ fontSize: { xs: '1.8rem', sm: '2.5rem', md: '3rem' }, mt: 2 }}
           >
             Admin Dashboard
           </Typography>

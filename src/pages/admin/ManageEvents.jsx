@@ -106,7 +106,7 @@ export default function ManageEvents() {
         mx: 'auto',
         width: '100%',
         maxWidth: { xs: '100%', sm: '90%', md: '80%', lg: '70%' },
-        background: '#ffffff',
+        background: '#caf0f8',
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>

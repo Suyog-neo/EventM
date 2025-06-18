@@ -103,7 +103,7 @@ export default function Navbar() {
 
   return (
     <>
-      <AppBar position="static" sx={{ backgroundColor: '#3f51b5' }}>
+      <AppBar position="static" sx={{ backgroundColor: '#0077b6' }}>
         <Toolbar
           sx={{
             display: 'flex',
