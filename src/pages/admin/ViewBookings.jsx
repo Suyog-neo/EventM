@@ -34,7 +34,7 @@ export default function ViewBookings() {
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: '#fff',
+        bgcolor: '#caf0f8',
       }}
     >
       {/* Header Section */}

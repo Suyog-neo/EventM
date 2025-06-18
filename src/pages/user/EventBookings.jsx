@@ -13,7 +13,7 @@ import {
 import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
 import EventIcon from '@mui/icons-material/Event';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import BackButton from '../../components/BackButton'; // ✅ import reusable back button
+import BackButton from '../../components/BackButton'; 
 
 export default function EventBookings() {
   const bookings = useSelector((state) => state.bookings);
@@ -22,14 +22,14 @@ export default function EventBookings() {
     <Fade in timeout={500}>
       <Box
         sx={{
-          position: 'relative', // needed for positioning back button
-          height: 'calc(100vh - 130px)',
+          position: 'relative', 
+          height: 'calc(93vh - 100px)',
           overflowY: 'auto',
           px: 2,
           pt: 2,
           pb: 1,
           boxSizing: 'border-box',
-          background: '#ffffff',
+          background: '#caf0f8',
         }}
       >
         {/* ✅ Back Button (top-right, icon-only) */}
@@ -46,6 +46,7 @@ export default function EventBookings() {
         </Typography>
 
         {bookings.length === 0 ? (
+
           <Box v align="center" color="text.secondary">
             <Box component='img' src='/noresultsfound.svg'
               sx={{
@@ -75,6 +76,11 @@ export default function EventBookings() {
             </Box>
 
           </Box>
+
+          <Typography variant="h6" align="center" color="text.secondary">
+            You haven't booked any events yet.
+          </Typography>
+
         ) : (
           <Grid container spacing={4} justifyContent="center">
             {bookings.map((event, i) => (

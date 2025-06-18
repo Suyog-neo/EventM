@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import AdBanner from '../../components/AdBanner';
 
 export default function UserDashboard() {
   const navigate = useNavigate();
@@ -123,7 +124,7 @@ export default function UserDashboard() {
     <Fade in timeout={500}>
       <Box
         sx={{
-          background: '#fdfdfd',
+          background: '#caf0f8',
           minHeight: '100vh',
           px: 2,
           pt: 4,
@@ -132,7 +133,7 @@ export default function UserDashboard() {
       >
         <Box
           sx={{
-            maxWidth: '1400px',
+            maxWidth: '1600px',
             mx: 'auto',
             backgroundColor: '#ffffff',
             borderRadius: 3,
@@ -140,6 +141,11 @@ export default function UserDashboard() {
             overflow: 'hidden',
           }}
         >
+          {/* Ad Banner */}
+          <Box sx={{ px: 3, pt: 4 }}>
+            <AdBanner type="user" />
+          </Box>
+
           {/* TITLE */}
           <Typography
             variant="h3"
@@ -278,7 +284,8 @@ export default function UserDashboard() {
                       borderRadius: 3,
                       overflow: 'hidden',
                       cursor: 'pointer',
-                      height: 250,
+                      height: 280,
+                      width: '100%',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'flex-end',
@@ -310,16 +317,21 @@ export default function UserDashboard() {
                       sx={{
                         position: 'relative',
                         zIndex: 2,
-                        p: 2,
-                        background:
-                          'linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0.1))',
+                        p: 3,
+                        background: 'linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2))',
                         color: 'white',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'flex-end',
                       }}
                     >
-                      <Typography variant="h6" fontWeight="bold">
+                      <Typography variant="h5" fontWeight="bold" gutterBottom>
                         {category.title}
                       </Typography>
-                      <Typography variant="body2">{category.description}</Typography>
+                      <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                        {category.description}
+                      </Typography>
                     </Box>
                   </Card>
                 </Grid>
