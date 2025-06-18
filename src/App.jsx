@@ -36,7 +36,8 @@ function AppLayout() {
   const appBackgroundStyle = {
     minHeight: '100vh',
     width: '100%',
-    background: 'linear-gradient(to right, #f3e5f5, #e3f2fd)',
+    backgroundColor: '#caf0f8',
+
   };
 
   return (
