@@ -77,10 +77,6 @@ export default function EventBookings() {
 
           </Box>
 
-          <Typography variant="h6" align="center" color="text.secondary">
-            You haven't booked any events yet.
-          </Typography>
-
         ) : (
           <Grid container spacing={4} justifyContent="center">
             {bookings.map((event, i) => (

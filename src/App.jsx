@@ -17,6 +17,7 @@ import EventBookings from './pages/user/EventBookings.jsx';
 import ManageEvents from './pages/admin/ManageEvents.jsx';
 import ViewBookings from './pages/admin/ViewBookings.jsx';
 import UpcomingEvents from './pages/user/UpcomingEvents.jsx';
+import ForgotPass from './pages/ForgotPass.jsx';
 
 // Components
 import Navbar from './components/Navbar.jsx';
@@ -50,6 +51,7 @@ function AppLayout() {
         <Route path="/home" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+         <Route path="/forgotpassword" element={<ForgotPass/>} />
 
         {/* Protected Routes */}
         {/* {isAuthenticated ? (
