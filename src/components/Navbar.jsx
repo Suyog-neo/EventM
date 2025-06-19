@@ -77,6 +77,9 @@ export default function Navbar() {
     setDrawerOpen(open);
   };
 
+  const token = useSelector((state) => state.auth.role);
+  console.log(token)
+
   const drawerContent = (
     <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
       <List>
@@ -146,31 +149,30 @@ export default function Navbar() {
 
               {/* Avatar + Name + Dropdown */}
               <Box
-  onClick={handleProfileMenuOpen}
-  sx={{
-    display: 'flex',
-    alignItems: 'center',
-    gap: 1,
-    cursor: 'pointer',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    px: 1.5,
-    py: 0.5,
-    borderRadius: 2,
-  }}
->
-  <AccountCircleIcon sx={{ fontSize: 28, color: '#fff' }} />
-  <Typography sx={{ fontSize: '0.95rem', color: '#fff' }}>
-    {user?.name || 'John Doe'}
-  </Typography>
-  <ArrowDropDownIcon sx={{ color: '#fff' }} />
-</Box>
+                onClick={handleProfileMenuOpen}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  cursor: 'pointer',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: 2,
+                }}
+              >
+                <AccountCircleIcon sx={{ fontSize: 28, color: '#fff' }} />
+                <Typography sx={{ fontSize: '0.95rem', color: '#fff' }}>
+                  {user?.name || 'John Doe'}
+                </Typography>
+                <ArrowDropDownIcon sx={{ color: '#fff' }} />
+              </Box>
 
             </Box>
           )}
         </Toolbar>
       </AppBar>
 
-      {/* Profile Dropdown Menu */}
       <Menu
         anchorEl={profileMenuAnchorEl}
         open={isProfileMenuOpen}
@@ -202,20 +204,28 @@ export default function Navbar() {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 300,
+            width: { xs: '95vw', lg: '35vw' },
+            height: { xs: '35vh', lg: '30vh' },
             p: 3,
             borderRadius: 2,
             boxShadow: 24,
+            outline: 'none'
           }}
         >
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h5" gutterBottom>
             Profile Info
           </Typography>
           <Divider sx={{ mb: 2 }} />
-          <Typography variant="body1"><strong>Name:</strong> {user?.name || 'John Doe'}</Typography>
-          <Typography variant="body1"><strong>Email:</strong> {user?.email || 'johndoe@example.com'}</Typography>
-          <Typography variant="body1"><strong>Role:</strong> {role || 'User'}</Typography>
-          <Typography variant="body1"><strong>Member Since:</strong> {user?.joined || '2024-01-01'}</Typography>
+          <Typography variant="body1" sx={{ fontSize: '20px' }}><strong>Name:</strong> {user?.name || 'John Doe'}</Typography>
+          <Typography variant="body1" sx={{ fontSize: '20px' }}><strong>Email:</strong> {user?.email || 'johndoe@example.com'}</Typography>
+          <Typography variant="body1" sx={{ fontSize: '20px' }}><strong>Role:</strong> {role || 'User'}</Typography>
+          <Typography variant="body1" sx={{ fontSize: '20px' }}><strong>Member Since:</strong> {user?.joined || '2024-01-01'}</Typography>
+          <Box sx={{ display: 'flex', justifyContent: "flex-end", mt: '10px', }} >
+            <Button variant="contained" sx={{ height: '4.5vh', width: '8vw' }}
+              onClick={handleModalClose}>
+              Close
+            </Button>
+          </Box>
         </Box>
       </Modal>
     </>

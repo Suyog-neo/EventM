@@ -6,7 +6,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 
-// Pages
+
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
 import Signup from './pages/Signup.jsx';
@@ -19,7 +19,7 @@ import ViewBookings from './pages/admin/ViewBookings.jsx';
 import UpcomingEvents from './pages/user/UpcomingEvents.jsx';
 import ForgotPass from './pages/ForgotPass.jsx';
 
-// Components
+
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer';
 
@@ -29,7 +29,7 @@ function AppLayout() {
   const { isAuthenticated, role } = useSelector((state) => state.auth);
   const location = useLocation();
 
-  // Hide Navbar and Footer on these routes
+
   const hideNavbarPaths = ['/login', '/home', '/signup'];
   const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
   const shouldShowFooter = !hideNavbarPaths.includes(location.pathname);
@@ -44,16 +44,13 @@ function AppLayout() {
     <Box sx={appBackgroundStyle}>
       {shouldShowNavbar && <Navbar />}
       <Routes>
-        {/* Default route goes to /home */}
-        <Route path="/" element={<Navigate to="/home" replace />} />
 
-        {/* Public Routes */}
+        <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/home" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-         <Route path="/forgotpassword" element={<ForgotPass/>} />
+        <Route path="/forgot-password" element={<ForgotPass />} />
 
-        {/* Protected Routes */}
         {isAuthenticated ? (
           role === 'admin' ? (
             <>
@@ -62,7 +59,7 @@ function AppLayout() {
               <Route path="/admin/bookings" element={<ViewBookings />} />
               <Route path="*" element={<Navigate to="/admin" replace />} />
             </>
-            ) : ( 
+          ) : (
             <>
               <Route path="/user" element={<UserDashboard />} />
               <Route path="/user/events" element={<EventList />} />
@@ -71,7 +68,7 @@ function AppLayout() {
               <Route path="*" element={<Navigate to="/user" replace />} />
             </>
           )
-        ) : ( 
+        ) : (
           <Route path="*" element={<Navigate to="/login" replace />} />
         )}
       </Routes>
