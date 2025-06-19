@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+
 import {
   Box,
   Typography,
@@ -9,6 +11,9 @@ import {
   Grid,
   Chip,
   Fade,
+  CardActionArea,
+  CardMedia,
+
 } from '@mui/material';
 import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
 import EventIcon from '@mui/icons-material/Event';
@@ -55,14 +60,14 @@ export default function EventBookings() {
           fontWeight="bold"
           color="primary"
           textAlign="center"
-          sx={{ mb: 2 }}
+          sx={{ mb: 2, fontSize: { xs: '25px' } }}
         >
           My Bookings
         </Typography>
 
         {eventBookHistory.length === 0 ? (
 
-          <Box  align="center" color="text.secondary">
+          <Box align="center" color="text.secondary">
             <Box component='img' src='/noresultsfound.svg'
               sx={{
                 height: { xs: '30vh', lg: '20vh' },
@@ -93,91 +98,103 @@ export default function EventBookings() {
           </Box>
 
         ) : (
-          <Grid container spacing={4} justifyContent="center">
-            {eventBookHistory.map((event, i) => (
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={4}
-                lg={3}
-                xl={3}
-                key={i}
-                sx={{ display: 'flex' }}
-              >
-                <Card
-                  sx={{
-                    width: '100%',
-                    height: 320,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    borderRadius: 8,
-                    background: 'linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)',
-                    boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
-                    transition: 'transform 0.3s ease',
-                    '&:hover': {
-                      transform: 'translateY(-10px)',
-                      boxShadow: '0 12px 40px rgba(0,0,0,0.3)',
-                    },
-                  }}
-                >
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography
-                      variant="h5"
-                      fontWeight="bold"
-                      noWrap
-                      sx={{ textOverflow: 'ellipsis', overflow: 'hidden', mb: 1 }}
-                    >
-                      {i + 1}. {event.title}
-                    </Typography>
-
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      <EventIcon fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />
-                      {event.date}
-                    </Typography>
-
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      <LocationOnIcon fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />
-                      {event.location}
-                    </Typography>
-
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      Seats: {Array.isArray(event.seats) ? event.seats.join(', ') : event.seats}
-                    </Typography>
-
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      Price: ${event.price}
-                    </Typography>
-
-                    <Box
-                      sx={{
-                        mt: 2,
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        gap: 2,
-                      }}
-                    >
-                      <Chip
-                        icon={<BookmarkAddedIcon />}
-                        label="Booked Ticket"
-                        color="success"
-                        variant="outlined"
-                        sx={{ flexGrow: 1 }}
+          <Grid container spacing={4} sx={{ justifyContent: { xs: 'flex-start', lg: 'center' } }}>
+            {eventBookHistory.map((event) => (
+              <>
+                <Grid item xs={12} md={3} lg={3} key={event.id} >
+                  <Card
+                    sx={{
+                      width: { sm: '60vw', xs: '90vw', lg: '19vw' },
+                      height: 450,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      borderRadius: 2,
+                      transition: 'transform 0.2s',
+                      '&:hover': {
+                        transform: 'scale(1.02)',
+                      },
+                    }}
+                  >
+                    <CardActionArea sx={{ height: '100%' }} >
+                      <CardMedia
+                        component="img"
+                        height="45%"
+                        image={`http://172.21.0.206:8000/${event.eventimg}`}
+                        alt={event.title}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/fallbackimg.svg';
+                        }}
+                        loading='lazy'
                       />
-                      <Chip
-                        icon={<BookmarkAddedIcon />}
-                        label="Download"
-                        color="primary"
-                        variant="outlined"
-                        sx={{ flexGrow: 1 }}
-                        onClick={() => console.log('Download ticket for:', event.title)}
-                      />
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
+                      <CardContent sx={{ height: '55%' }}>
+                        <Box>
+                          <Typography gutterBottom variant="h6" noWrap>
+                            {event.eventname}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: .5, height: 40, overflow: 'hidden' }}>
+                            {event.event_description}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <LocationOnIcon color="action" />
+                            <Typography variant="body2" noWrap>{event.event_location}</Typography>
+                          </Box>
+                          <Box sx={{display:'flex' ,justifyContent:'space-between'}}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <CalendarTodayIcon color="action" />
+                              <Typography variant="body2">
+                                {new Date(event.event_date).toLocaleDateString()}
+                              </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <AttachMoneyIcon color="action" />
+                              <Typography variant="body2">₹{event.price}</Typography>
+                            </Box>
+                          </Box>
+                          <Box>
+                            <Typography>Seats : {event.seat.seat_number}</Typography>
+                          </Box>
+                        </Box>
+                        <Box
+                          sx={{
+                            mt: 2,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            gap: 2,
+                          }}
+                        >
+                          <Chip
+                            icon={<BookmarkAddedIcon />}
+                            label="Booked Ticket"
+                            color="success"
+                            variant="outlined"
+                            sx={{
+                              flexGrow: 1,
+                              borderWidth: '1px',
+                              height: '35px'
+                            }}
+                          />
+                          <Chip
+                            icon={<BookmarkAddedIcon />}
+                            label="Download"
+                            color="primary"
+                            variant="outlined"
+                            sx={{
+                              flexGrow: 1,
+                              borderWidth: '1px',
+                              height: '35px'
+                            }}
+                            onClick={() => console.log('Download ticket for:', event.title)}
+                          />
+                        </Box>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                </Grid>
+              </>
             ))}
           </Grid>
         )}
