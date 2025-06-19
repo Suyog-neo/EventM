@@ -6,7 +6,6 @@ import {
   Typography,
   Paper,
   Fade,
-  Link,
   Snackbar,
   Alert,
   InputAdornment,
@@ -15,7 +14,7 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { login } from '../redux/slices/authSlice';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../apis/auth'
 
 
@@ -52,10 +51,9 @@ export default function Login() {
 
     try {
       const res = await loginUser(credentials)
-      console.log("res", res.data)
 
       if (res.status === 200) {
-        dispatch(login({ email, role: res.data.role, refresh: res.data.refresh, access: res.data.access }));
+        dispatch(login({ email, user: res.data.user, refresh: res.data.refresh, access: res.data.access }));
         setSnackbar({ open: true, message: 'Login successful!', severity: 'success' });
         res.data.role === 'admin' ? setTimeout(() => navigate('/admin'), 1000) : setTimeout(() => navigate('/user'), 1000);
 
@@ -67,6 +65,61 @@ export default function Login() {
     }
 
   };
+
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const { email, password } = credentials;
+  //   const errors = {};
+
+  //   if (!email) errors.email = 'Email is required';
+  //   if (!password) errors.password = 'Password is required';
+
+  //   setFieldErrors(errors);
+  //   if (Object.keys(errors).length > 0) return;
+
+  //   const hardcodedUsers = [
+  //     {
+  //       email: 'admin@gmail.com',
+  //       password: 'admin123',
+  //       role: 'admin',
+  //       name: 'Prathmesh Gatade',
+  //     },
+  //     {
+  //       email: 'user@egmail.com',
+  //       password: 'user123',
+  //       role: 'user',
+  //       name: 'Suyog Chavan',
+  //     },
+  //   ];
+
+  //   const matchedUser = hardcodedUsers.find(
+  //     (user) => user.email === email && user.password === password
+  //   );
+
+  //   if (matchedUser) {
+  //     dispatch(
+  //       login({
+  //         email: matchedUser.email,
+  //         role: matchedUser.role,
+  //         refresh: 'mock-refresh-token',
+  //         access: 'mock-access-token',
+  //         user: {
+  //           name: matchedUser.name,
+  //           email: matchedUser.email,
+  //           joined: '2024-01-01',
+  //         },
+  //       })
+  //     );
+  //     setSnackbar({ open: true, message: 'Login successful!', severity: 'success' });
+
+  //     setTimeout(() => {
+  //       matchedUser.role === 'admin' ? navigate('/admin') : navigate('/user');
+  //     }, 1000);
+  //   } else {
+  //     setSnackbar({ open: true, message: 'Invalid email or password.', severity: 'error' });
+  //   }
+  // };
 
   return (
     <Box
@@ -135,9 +188,9 @@ export default function Login() {
             Please enter your credentials to continue
           </Typography>
 
-          <form onSubmit={handleSubmit}>
+          <Box component='form' onSubmit={handleSubmit}>
             <Fade in timeout={500}>
-              <div>
+              <Box>
                 <TextField
                   fullWidth
                   label="email"
@@ -170,9 +223,25 @@ export default function Login() {
                     ),
                   }}
                 />
-              </div>
+              </Box>
             </Fade>
-
+            <Box display="flex" justifyContent="flex-end">
+              <Box
+                component={Link}
+                to="/forgot-password"
+                sx={{
+                  textDecoration: 'none',
+                  color: 'primary.main',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
+              >
+                Forgot your password?
+              </Box>
+            </Box>
             <Button
               type="submit"
               fullWidth
@@ -191,10 +260,9 @@ export default function Login() {
             <Box sx={{ mt: 2, textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">
                 Don't have an account?{' '}
-                <Link
+                <Link to='/signup'
                   component="button"
                   variant="body2"
-                  onClick={() => navigate('/signup')}
                   sx={{
                     color: '#0288d1',
                     textDecoration: 'none',
@@ -207,7 +275,7 @@ export default function Login() {
                 </Link>
               </Typography>
             </Box>
-          </form>
+          </Box>
         </Paper>
       </Box>
 
