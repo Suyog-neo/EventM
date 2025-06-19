@@ -13,7 +13,7 @@ import {
 import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
 import EventIcon from '@mui/icons-material/Event';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import BackButton from '../../components/BackButton'; 
+import BackButton from '../../components/BackButton';
 
 export default function EventBookings() {
   const bookings = useSelector((state) => state.bookings);
@@ -22,7 +22,7 @@ export default function EventBookings() {
     <Fade in timeout={500}>
       <Box
         sx={{
-          position: 'relative', 
+          position: 'relative',
           height: 'calc(93vh - 100px)',
           overflowY: 'auto',
           px: 2,
@@ -32,7 +32,7 @@ export default function EventBookings() {
           background: '#caf0f8',
         }}
       >
-        
+
         <BackButton sx={{ left: 16, right: 'auto' }} />
 
         <Typography
@@ -50,9 +50,9 @@ export default function EventBookings() {
           <Box v align="center" color="text.secondary">
             <Box component='img' src='/noresultsfound.svg'
               sx={{
-                height: {xs:'30vh',lg:'20vh'},
-                width:{xs:'60vw',lg:'20vw'},
-                 marginTop:{lg:10}
+                height: { xs: '30vh', lg: '20vh' },
+                width: { xs: '60vw', lg: '20vw' },
+                marginTop: { lg: 10 }
               }}
             >
             </Box>
@@ -61,14 +61,14 @@ export default function EventBookings() {
                 sx={{
                   border: '2px solid red',
                   borderRadius: 1,
-                  width: {xs:1,lg:'20vw'},
-                  padding:1,
+                  width: { xs: 1, lg: '20vw' },
+                  padding: 1,
                   display: 'flex',
                   justifyContent: 'center',
-                 color:'black',
-                  textDecorationLine:'none',
-                  fontSize:"18px",
-                  marginTop:{lg:10}
+                  color: 'black',
+                  textDecorationLine: 'none',
+                  fontSize: "18px",
+                  marginTop: { lg: 10 }
                 }}
               >
                 Expores Events
