@@ -1,4 +1,5 @@
-import { axiosInstance as axios } from '../apis/axiosInstance';
+import {axiosInstance as axios} from '../apis/axiosInstance';
 
-export const addEvent = (data) => axios.post('/event', data);
-export const getEvent = ()=> axios.get('/')
+export const adminCreateEvent = (data) => axios.post('/api/event/create-event/', data);
+export const userAllEvents= (data) => axios.get('/api/event/user/get-events/', data);
+

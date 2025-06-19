@@ -1,4 +1,4 @@
-// src/redux/slices/eventsSlice.js
+
 import { createSlice } from '@reduxjs/toolkit';
 
 const eventsSlice = createSlice({

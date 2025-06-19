@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -18,14 +18,14 @@ import {
   Avatar,
   Modal,
   Paper,
-} from '@mui/material';
-import LogoutIcon from '@mui/icons-material/Logout';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import MenuIcon from '@mui/icons-material/Menu';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../redux/slices/authSlice';
-import { useNavigate } from 'react-router-dom';
+} from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import MenuIcon from "@mui/icons-material/Menu";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/slices/authSlice";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const dispatch = useDispatch();
@@ -39,7 +39,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/login');
+    navigate("/login");
   };
 
   const handleProfileMenuOpen = (event) => {
@@ -60,20 +60,24 @@ export default function Navbar() {
   };
 
   const userActions = [
-    { label: 'View Events', path: '/user/events' },
-    { label: 'My Bookings', path: '/user/bookings' },
+    { label: "View Events", path: "/user/events" },
+    { label: "My Bookings", path: "/user/bookings" },
   ];
 
   const adminActions = [
-    { label: 'Create Event', path: '/admin/create-event' },
-    { label: 'Manage Events', path: '/admin/manage-events' },
-    { label: 'View Bookings', path: '/admin/bookings' },
+    { label: "Create Event", path: "/admin/create-event" },
+    { label: "Manage Events", path: "/admin/manage-events" },
+    { label: "View Bookings", path: "/admin/bookings" },
   ];
 
-  const actions = role === 'admin' ? adminActions : userActions;
+  const actions = role === "admin" ? adminActions : userActions;
 
   const toggleDrawer = (open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) return;
+    if (
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    )
+      return;
     setDrawerOpen(open);
   };
 
@@ -81,10 +85,19 @@ export default function Navbar() {
   console.log(token)
 
   const drawerContent = (
-    <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
+    <Box
+      sx={{ width: 250 }}
+      role="presentation"
+      onClick={toggleDrawer(false)}
+      onKeyDown={toggleDrawer(false)}
+    >
       <List>
         {actions.map((action) => (
-          <ListItem button key={action.label} onClick={() => navigate(action.path)}>
+          <ListItem
+            button
+            key={action.label}
+            onClick={() => navigate(action.path)}
+          >
             <ListItemIcon>
               <AccountCircleIcon />
             </ListItemIcon>
@@ -106,25 +119,32 @@ export default function Navbar() {
 
   return (
     <>
-      <AppBar position="static" sx={{ backgroundColor: '#0077b6' }}>
+      <AppBar position="static" sx={{ backgroundColor: "#0077b6" }}>
         <Toolbar
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
             mt: 1,
-            width: '100%',
-            color: '#fff',
+            width: "100%",
+            color: "#fff",
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton onClick={toggleDrawer(true)} sx={{ display: { xs: 'block', sm: 'none' }, color: '#fff' }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <IconButton
+              onClick={toggleDrawer(true)}
+              sx={{ display: { xs: "block", sm: "none" }, color: "#fff" }}
+            >
               <MenuIcon />
             </IconButton>
 
-            <img src="/public/virtual-event.png" alt="Eventsy Logo" style={{ width: 32, height: 32 }} />
+            <img
+              src="/public/virtual-event.png"
+              alt="Eventsy Logo"
+              style={{ width: 32, height: 32 }}
+            />
 
-            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#fff' }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", color: "#fff" }}>
               EventSy
             </Typography>
           </Box>
@@ -134,13 +154,13 @@ export default function Navbar() {
           </Drawer>
 
           {isAuthenticated && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 2 }}>
                 {actions.map((action) => (
                   <Button
                     key={action.label}
                     onClick={() => navigate(action.path)}
-                    sx={{ color: '#fff', fontWeight: 'bold' }}
+                    sx={{ color: "#fff", fontWeight: "bold" }}
                   >
                     {action.label}
                   </Button>
@@ -151,6 +171,7 @@ export default function Navbar() {
               <Box
                 onClick={handleProfileMenuOpen}
                 sx={{
+
                   display: 'flex',
                   alignItems: 'center',
                   gap: 1,
@@ -167,7 +188,6 @@ export default function Navbar() {
                 </Typography>
                 <ArrowDropDownIcon sx={{ color: '#fff' }} />
               </Box>
-
             </Box>
           )}
         </Toolbar>
@@ -177,9 +197,9 @@ export default function Navbar() {
         anchorEl={profileMenuAnchorEl}
         open={isProfileMenuOpen}
         onClose={handleProfileMenuClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
         <MenuItem onClick={handleProfileClick}>
           <AccountCircleIcon fontSize="small" sx={{ mr: 1 }} />
           Profile
@@ -200,12 +220,14 @@ export default function Navbar() {
         <Box
           component={Paper}
           sx={{
+
             position: 'absolute',
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: { xs: '95vw', lg: '35vw' },
             height: { xs: '35vh', lg: '30vh' },
+
             p: 3,
             borderRadius: 2,
             boxShadow: 24,
@@ -216,6 +238,7 @@ export default function Navbar() {
             Profile Info
           </Typography>
           <Divider sx={{ mb: 2 }} />
+
           <Typography variant="body1" sx={{ fontSize: '20px' }}><strong>Name:</strong> {user?.name || 'John Doe'}</Typography>
           <Typography variant="body1" sx={{ fontSize: '20px' }}><strong>Email:</strong> {user?.email || 'johndoe@example.com'}</Typography>
           <Typography variant="body1" sx={{ fontSize: '20px' }}><strong>Role:</strong> {role || 'User'}</Typography>
@@ -226,6 +249,7 @@ export default function Navbar() {
               Close
             </Button>
           </Box>
+
         </Box>
       </Modal>
     </>

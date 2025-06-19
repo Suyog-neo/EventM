@@ -29,7 +29,6 @@ function AppLayout() {
   const { isAuthenticated, role } = useSelector((state) => state.auth);
   const location = useLocation();
 
-
   const hideNavbarPaths = ['/login', '/home', '/signup'];
   const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
   const shouldShowFooter = !hideNavbarPaths.includes(location.pathname);
@@ -37,15 +36,16 @@ function AppLayout() {
   const appBackgroundStyle = {
     minHeight: '100vh',
     width: '100%',
-    background: 'linear-gradient(to right, #f3e5f5, #e3f2fd)',
+    backgroundColor: '#caf0f8',
+
   };
 
   return (
     <Box sx={appBackgroundStyle}>
       {shouldShowNavbar && <Navbar />}
-      <Routes>
-
+      <Routes>       
         <Route path="/" element={<Navigate to="/home" replace />} />
+
         <Route path="/home" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

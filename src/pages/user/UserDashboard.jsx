@@ -14,8 +14,8 @@ import {
 } from '@mui/material';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
-import EventNoteIcon from '@mui/icons-material/EventNote'; // New icon
-import LocalOfferIcon from '@mui/icons-material/LocalOffer'; // New icon
+import EventNoteIcon from '@mui/icons-material/EventNote'; 
+import LocalOfferIcon from '@mui/icons-material/LocalOffer'; 
 import { useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
@@ -46,7 +46,7 @@ export default function UserDashboard() {
     {
       title: 'Exclusive Offers',
       icon: <LocalOfferIcon sx={{ fontSize: 40, color: '#388e3c' }} />,
-      onClick: () => navigate('/user/offers'),
+      onClick: () => navigate('/user/ExclusiveOffers'),
     },
   ];
 
@@ -68,7 +68,7 @@ export default function UserDashboard() {
     },
   ];
 
-  // Updated categories with images for better UI
+  
   const categories = [
     {
       title: 'Technology',

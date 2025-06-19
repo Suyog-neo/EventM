@@ -37,7 +37,7 @@ export default function ViewBookings() {
         bgcolor: '#caf0f8',
       }}
     >
-      {/* Header Section */}
+    
       <Box
         sx={{
           position: 'relative',
@@ -67,7 +67,7 @@ export default function ViewBookings() {
         </Typography>
       </Box>
 
-      {/* Content Area */}
+     
       <Box
         sx={{
           flex: 1,

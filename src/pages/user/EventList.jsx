@@ -1,157 +1,77 @@
-import React, { useState, useMemo } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { bookEvent } from '../../redux/slices/bookingsSlice';
-import { decrementSeat } from '../../redux/slices/eventsSlice';
+import React, { useState, useEffect } from 'react';
 import {
+  Box,
   Typography,
+  Grid,
   Card,
   CardContent,
-  CardActions,
-  Button,
-  Grid,
-  Chip,
-  Snackbar,
-  Alert,
+  CardMedia,
+  CardActionArea,
   TextField,
-  MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   InputAdornment,
   IconButton,
-  CardMedia,
-  Box,
+  CircularProgress,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import ClearIcon from '@mui/icons-material/Clear';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import EventSeatIcon from '@mui/icons-material/EventSeat';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
+import { userAllEvents } from '../../apis/event';
 
 export default function EventList() {
-  const events = useSelector((state) => state.events);
-  const bookings = useSelector((state) => state.bookings);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState('');
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [seatBookingOpen, setSeatBookingOpen] = useState(false);
-  const [selectedSeats, setSelectedSeats] = useState([]);
-  const [seatsConfirmed, setSeatsConfirmed] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
+  useEffect(() => {
+    fetchEvents();
+  }, []);
 
-  const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
-
-  const validateSeatSelection = () => {
-    if (selectedSeats.length === 0) {
-      setSnackbar({
-        open: true,
-        message: 'Please select at least one seat.',
-        severity: 'error',
-      });
-      return false;
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      const response = await userAllEvents();
+      if (response.data.status === 'success') {
+        setEvents(response.data.data);
+      } else {
+        setError('Failed to fetch events');
+      }
+    } catch (error) {
+      setError(error.response?.data?.message || 'Failed to fetch events');
+    } finally {
+      setLoading(false);
     }
-    return true;
   };
 
-  const handleConfirmSeatBooking = () => {
-    if (!validateSeatSelection()) return;
-
-    setSeatsConfirmed(true);
-    setSeatBookingOpen(false);
-    setSnackbar({
-      open: true,
-      message: `Seats ${selectedSeats.join(', ')} booked successfully!`,
-      severity: 'success',
-    });
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
   };
 
-  const handleBook = () => {
-    if (!selectedEvent) {
-      setSnackbar({
-        open: true,
-        message: 'No event selected for booking.',
-        severity: 'error',
-      });
-      return;
-    }
+  const filteredEvents = events.filter((event) =>
+    event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    event.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    const alreadyBooked = bookings.find((b) => b.id === selectedEvent.id);
-    if (!alreadyBooked && selectedEvent.seats > 0 && selectedSeats.length > 0) {
-      dispatch(bookEvent({ ...selectedEvent, seats: selectedSeats }));
-      dispatch(decrementSeat(selectedEvent.id));
-      setSnackbar({ open: true, message: 'Event booked successfully!', severity: 'success' });
-    } else {
-      setSnackbar({
-        open: true,
-        message: 'You already booked this event or it is sold out.',
-        severity: 'info',
-      });
-    }
-    setSelectedEvent(null);
-    setSeatsConfirmed(false);
-    setSelectedSeats([]);
-  };
-
-  const uniqueLocations = useMemo(() => {
-    const locations = events.map((e) => e.location);
-    return [...new Set(locations)].sort();
-  }, [events]);
-
-  const filteredEvents = useMemo(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const category = urlParams.get('category');
-
-    return events.filter((event) => {
-      const matchTitle = event.title.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchLocation = selectedLocation ? event.location === selectedLocation : true;
-      const matchCategory = category ? event.category === category : true;
-
-      return matchTitle && matchLocation && matchCategory;
-    });
-  }, [events, searchQuery, selectedLocation]);
-
-  const handleSeatSelection = (seatNumber) => {
-    setSelectedSeats((prev) =>
-      prev.includes(seatNumber) ? prev.filter((s) => s !== seatNumber) : [...prev, seatNumber]
-    );
-  };
-
-  const handleOpenModal = (event) => {
-    setSelectedEvent(event);
-    setSelectedSeats([]);
-    setSeatsConfirmed(false);
-    setOpenModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    setSelectedEvent(null);
-    setSeatsConfirmed(false);
-    setSelectedSeats([]);
-  };
-
-  const isBookingDisabled = () => {
+  if (loading) {
     return (
-      !selectedEvent ||
-      selectedEvent.seats === 0 ||
-      bookings.some((b) => b.id === selectedEvent.id)
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <CircularProgress />
+      </Box>
     );
-  };
+  }
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        background: '#caf0f8',
-        py: 4,
-      }}
-    >
-      {/* Main Content Area */}
-      <Box sx={{ flex: 1 }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#caf0f8', py: 4, px: 2 }}>
+      <Box sx={{ maxWidth: '1200px', mx: 'auto' }}>
+        {/* Header */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2, position: 'relative' }}>
           <IconButton
             onClick={() => navigate('/user/dashboard')}
@@ -178,226 +98,113 @@ export default function EventList() {
           </Typography>
         </Box>
 
-        {/* Search & Filter */}
+        
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
-            gap: 2,
-            mb: 4,
             justifyContent: 'center',
+            mb: 4,
             px: 2,
           }}
         >
           <TextField
-            label="Search by Title"
+            fullWidth
             variant="outlined"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search events..."
+            value={searchTerm}
+            onChange={handleSearch}
             InputProps={{
-              endAdornment: searchQuery && (
-                <InputAdornment position="end">
-                  <IconButton onClick={() => setSearchQuery('')}>
-                    <ClearIcon />
-                  </IconButton>
-                </InputAdornment>
-              ),
               startAdornment: (
                 <InputAdornment position="start">
                   <SearchIcon />
                 </InputAdornment>
               ),
             }}
-            sx={{ width: { xs: '100%', sm: '25%' } }}
+            sx={{ maxWidth: 400 }}
           />
-
-          <TextField
-            label="Filter by Location"
-            variant="outlined"
-            select
-            value={selectedLocation}
-            onChange={(e) => setSelectedLocation(e.target.value)}
-            sx={{ width: { xs: '100%', sm: '20%' } }}
-          >
-            <MenuItem value="">All Locations</MenuItem>
-            {uniqueLocations.map((loc) => (
-              <MenuItem key={loc} value={loc}>
-                {loc}
-              </MenuItem>
-            ))}
-          </TextField>
         </Box>
 
-        {/* Event Grid */}
-        <Grid container spacing={2} justifyContent="center" sx={{ px: 2 }}>
-          {filteredEvents.map((event) => {
-            const isBooked = bookings.some((b) => b.id === event.id);
-            const isSoldOut = event.seats === 0;
-
-            return (
-              <Grid item xs={12} sm={6} md={3} lg={2.4} key={event.id}>
-                <Card
-                  onClick={() => handleOpenModal(event)}
-                  sx={{
-                    cursor: 'pointer',
-                    borderRadius: 4,
-                    boxShadow: 6,
-                    overflow: 'hidden',
-                    transition: '0.3s',
-                    height: 440,
-                    width: 340,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    '&:hover': {
-                      transform: 'scale(1.02)',
-                      boxShadow: 12,
-                    },
-                  }}
-                >
+       
+        <Grid container spacing={3} justifyContent="center">
+          {filteredEvents.map((event) => (
+            <Grid item key={event.id}>
+              <Card
+                sx={{
+                  width: 320,
+                  height: 450,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  borderRadius: 2,
+                  transition: 'transform 0.2s',
+                  '&:hover': {
+                    transform: 'scale(1.02)',
+                  },
+                }}
+              >
+                <CardActionArea sx={{ height: '100%' }} onClick={() => navigate(`/user/event/${event.id}`)}>
                   <CardMedia
                     component="img"
-                    height="270"
-                    image={event.image}
+                    height="180"
+                    image={event.event_image ? `http://172.21.0.215:8000${event.event_image}` : 'https://via.placeholder.com/400x200?text=Event+Image'}
                     alt={event.title}
-                    sx={{ objectFit: 'cover' }}
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = 'https://via.placeholder.com/400x200?text=Image+Unavailable';
+                      e.target.src = 'https://via.placeholder.com/400x200?text=Event+Image';
                     }}
                   />
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
-                      {event.title}
-                    </Typography>
-                    <Typography variant="body2">📅 {event.date}</Typography>
-                    <Typography variant="body2">📍 {event.location}</Typography>
-                    <Typography variant="body2">🎭 Type: {event.type || 'General'}</Typography>
-                    <Typography variant="body2">💲 Price: ${event.price}</Typography>
+                  <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <Box>
+                      <Typography gutterBottom variant="h6" noWrap>
+                        {event.title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, height: 40, overflow: 'hidden' }}>
+                        {event.description}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <LocationOnIcon color="action" />
+                        <Typography variant="body2" noWrap>{event.location}</Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <CalendarTodayIcon color="action" />
+                        <Typography variant="body2">
+                          {new Date(event.date).toLocaleDateString()}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <AttachMoneyIcon color="action" />
+                        <Typography variant="body2">₹{event.price_per_seat}</Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <EventSeatIcon color="action" />
+                        <Typography variant="body2">
+                          {event.available_seats} seats available
+                        </Typography>
+                      </Box>
+                    </Box>
                   </CardContent>
-                  <CardActions sx={{ display: 'flex', justifyContent: 'flex-end',px: 2 }}>
-                    <Chip
-                      label={isSoldOut ? 'Sold Out' : `${event.seats} Seats Left`}
-                      color={isSoldOut ? 'error' : 'info'}
-                    />
-                  </CardActions>
-                </Card>
-              </Grid>
-            );
-          })}
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))}
         </Grid>
+
+        {filteredEvents.length === 0 && (
+          <Typography variant="h6" textAlign="center" sx={{ mt: 4 }}>
+            No events found matching your criteria
+          </Typography>
+        )}
       </Box>
 
-      {/* Footer Spacer */}
-      <Box sx={{ height: 80 }} />
-
-      {/* Modal and Seat Selection Dialog */}
-      <Dialog open={openModal} onClose={handleCloseModal} maxWidth="sm" fullWidth>
-        {selectedEvent && (
-          <>
-            <DialogTitle>{selectedEvent.title}</DialogTitle>
-            <DialogContent dividers>
-              <Typography gutterBottom>📅 <strong>Date:</strong> {selectedEvent.date}</Typography>
-              <Typography gutterBottom>📍 <strong>Location:</strong> {selectedEvent.location}</Typography>
-              <Typography gutterBottom>🎫 <strong>Seats Left:</strong> {selectedEvent.seats}</Typography>
-              <Typography gutterBottom>📝 <strong>Details:</strong> {selectedEvent.details}</Typography>
-              {seatsConfirmed && selectedSeats.length > 0 && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="body2" fontWeight="bold" gutterBottom>
-                    🎫 Selected Seats:
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    {selectedSeats.map((seat) => (
-                      <Chip key={seat} label={`Seat ${seat}`} color="success" />
-                    ))}
-                  </Box>
-                  <Typography variant="body1" sx={{ mt: 1 }}>
-                    💲 <strong>Total:</strong> ${selectedEvent.price * selectedSeats.length}
-                  </Typography>
-                </Box>
-              )}
-              <Box
-                component="img"
-                src={selectedEvent.image}
-                alt="Event"
-                sx={{ mt: 2, width: '100%', borderRadius: 2 }}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = 'https://via.placeholder.com/600x300?text=No+Image';
-                }}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseModal}>Cancel</Button>
-              <Button
-                variant="contained"
-                disabled={isBookingDisabled() || !seatsConfirmed}
-                onClick={handleBook}
-              >
-                {selectedEvent?.seats === 0
-                  ? 'Sold Out'
-                  : bookings.some((b) => b.id === selectedEvent?.id)
-                  ? 'Already Booked'
-                  : !seatsConfirmed
-                  ? 'Select Seats to Book'
-                  : 'Confirm Booking'}
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  setSeatsConfirmed(false);
-                  setSeatBookingOpen(true);
-                }}
-                disabled={!selectedEvent || selectedEvent.seats === 0}
-              >
-                Select Seats
-              </Button>
-            </DialogActions>
-
-            {/* Seat Selection */}
-            <Dialog open={seatBookingOpen} onClose={() => setSeatBookingOpen(false)} fullWidth maxWidth="sm">
-              <DialogTitle>Select Seats</DialogTitle>
-              <DialogContent>
-                <Typography gutterBottom>
-                  Available seats: {selectedEvent?.seats}
-                </Typography>
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(50px, 1fr))',
-                    gap: 2,
-                  }}
-                >
-                  {[...Array(selectedEvent?.seats || 0)].map((_, index) => (
-                    <Button
-                      key={index}
-                      variant={selectedSeats.includes(index + 1) ? 'contained' : 'outlined'}
-                      onClick={() => handleSeatSelection(index + 1)}
-                    >
-                      {index + 1}
-                    </Button>
-                  ))}
-                </Box>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setSeatBookingOpen(false)}>Cancel</Button>
-                <Button onClick={handleConfirmSeatBooking} disabled={selectedSeats.length === 0}>
-                  Confirm
-                </Button>
-              </DialogActions>
-            </Dialog>
-          </>
-        )}
-      </Dialog>
-
-      {/* Snackbar */}
       <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
+        <Alert onClose={() => setError(null)} severity="error" sx={{ width: '100%' }}>
+          {error}
         </Alert>
       </Snackbar>
     </Box>

@@ -32,7 +32,7 @@ export default function EventBookings() {
           background: '#caf0f8',
         }}
       >
-        {/* ✅ Back Button (top-right, icon-only) */}
+        
         <BackButton sx={{ left: 16, right: 'auto' }} />
 
         <Typography

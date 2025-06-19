@@ -4,7 +4,7 @@ import eventsReducer from './slices/eventsSlice';
 import bookingsReducer from './slices/bookingsSlice';
 
 
-// load the auth data of user from localstorage 
+
 const loadState = () => {
   try {
     const serializedState = localStorage.getItem('auth');
@@ -28,7 +28,7 @@ export const store = configureStore({
 });
 
 
-// check user is login and save tokens 
+
 store.subscribe(() => {
   const state = store.getState();
   if (state.auth.isAuthenticated) {

@@ -15,6 +15,8 @@ import {
   Snackbar,
   Slide,
   Fade,
+  MenuItem,
+  Alert,
 } from '@mui/material';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import ListAltIcon from '@mui/icons-material/ListAlt';
@@ -33,6 +35,7 @@ import {
 } from 'chart.js';
 import Carousel from '../../components/Carousel';
 import AdBanner from '../../components/AdBanner';
+import { adminCreateEvent } from '../../apis/event';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -42,62 +45,93 @@ export default function AdminDashboard() {
 
   const [open, setOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [errors, setErrors] = useState({});
   const [newEvent, setNewEvent] = useState({
-    id: '',
     title: '',
     date: '',
+    category: '',
     location: '',
-    seats: '',
-    image: '',
-    type: '',
-    details: '',
-    price: '',
+    description: '',
+    status: 'upcoming',
+    total_seats: '',
+    available_seats: '',
+    price_per_seat: '',
+    address: '',
   });
+
+  const categories = ['Technology', 'Entertainment', 'Business', 'Art', 'Sports', 'Wellness'];
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
     setErrors({});
+    setNewEvent({
+      title: '',
+      date: '',
+      category: '',
+      location: '',
+      description: '',
+      status: 'upcoming',
+      total_seats: '',
+      available_seats: '',
+      price_per_seat: '',
+      address: '',
+    });
   };
 
   const handleChange = (e) => {
-    setNewEvent({ ...newEvent, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setNewEvent((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === 'total_seats' && { available_seats: value }),
+    }));
   };
 
   const validateFields = () => {
     const newErrors = {};
-    if (!newEvent.id || isNaN(newEvent.id)) newErrors.id = 'Valid ID required';
-    if (!newEvent.title.trim()) newErrors.title = 'Title required';
-    if (!newEvent.date) newErrors.date = 'Date required';
-    if (!newEvent.location.trim()) newErrors.location = 'Location required';
-    if (!newEvent.seats || isNaN(newEvent.seats)) newErrors.seats = 'Valid seats required';
-    if (!newEvent.image.trim()) newErrors.image = 'Image URL required';
-    if (!newEvent.type.trim()) newErrors.type = 'Type required';
-    if (!newEvent.details.trim()) newErrors.details = 'Details required';
-    if (!newEvent.price || isNaN(newEvent.price)) newErrors.price = 'Valid price required';
+    if (!newEvent.title.trim()) newErrors.title = 'Title is required';
+    if (!newEvent.date) newErrors.date = 'Date is required';
+    if (!newEvent.category) newErrors.category = 'Category is required';
+    if (!newEvent.location.trim()) newErrors.location = 'Location is required';
+    if (!newEvent.description.trim()) newErrors.description = 'Description is required';
+    if (!newEvent.total_seats || isNaN(newEvent.total_seats) || newEvent.total_seats <= 0) {
+      newErrors.total_seats = 'Valid total seats is required';
+    }
+    if (!newEvent.price_per_seat || isNaN(newEvent.price_per_seat) || newEvent.price_per_seat <= 0) {
+      newErrors.price_per_seat = 'Valid price per seat is required';
+    }
+    if (!newEvent.address.trim()) newErrors.address = 'Address is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleCreateEvent = () => {
+  const handleCreateEvent = async () => {
     if (!validateFields()) return;
 
-    console.log('Creating event:', newEvent);
-    setSnackbarOpen(true);
-    setNewEvent({
-      id: '',
-      title: '',
-      date: '',
-      location: '',
-      seats: '',
-      image: '',
-      type: '',
-      details: '',
-      price: '',
-    });
-    handleClose();
+    try {
+      const eventData = {
+        ...newEvent,
+        total_seats: parseInt(newEvent.total_seats),
+        available_seats: parseInt(newEvent.total_seats),
+        price_per_seat: parseFloat(newEvent.price_per_seat),
+      };
+
+      const response = await adminCreateEvent(eventData);
+      if (response.data) {
+        setSnackbarMessage('Event created successfully!');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
+        handleClose();
+      }
+    } catch (error) {
+      setSnackbarMessage(error.response?.data?.message || 'Failed to create event');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
   };
 
   const actions = [
@@ -138,7 +172,7 @@ export default function AdminDashboard() {
     datasets: [
       {
         label: 'Seats Left',
-        data: events.map((e) => e.seats),
+        data: events.map((e) => e.available_seats ?? 0), 
         backgroundColor: 'rgba(63, 81, 181, 0.6)',
       },
     ],
@@ -147,9 +181,7 @@ export default function AdminDashboard() {
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    layout: {
-      padding: { bottom: 30 },
-    },
+    layout: { padding: { bottom: 30 } },
     plugins: {
       legend: { position: 'top' },
       title: { display: true, text: 'Event Seats Overview' },
@@ -180,7 +212,7 @@ export default function AdminDashboard() {
             p: 3,
           }}
         >
-          {/* Ad Banner */}
+          
           <Box sx={{ px: 2, pt: 2, pb: 1 }}>
             <AdBanner type="admin" />
           </Box>
@@ -196,10 +228,9 @@ export default function AdminDashboard() {
             Admin Dashboard
           </Typography>
 
-          {/* Carousel */}
           <Carousel items={carouselItems} />
 
-          {/* Action Cards */}
+          
           <Grid container spacing={4} justifyContent="center">
             {actions.map((action, index) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
@@ -231,7 +262,7 @@ export default function AdminDashboard() {
             ))}
           </Grid>
 
-          {/* Chart Section */}
+          
           <Box
             sx={{
               mt: 6,
@@ -242,48 +273,118 @@ export default function AdminDashboard() {
               pb: 4,
             }}
           >
-            <Typography
-              variant="h5"
-              fontWeight="bold"
-              mb={2}
-              color="#3f51b5"
-              textAlign="center"
-            >
+            <Typography variant="h5" fontWeight="bold" mb={2} color="#3f51b5" textAlign="center">
               Analytics
             </Typography>
             <Bar data={chartData} options={chartOptions} />
           </Box>
 
-          {/* Dialog for Creating Event */}
+          
           <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
             <DialogTitle>Create New Event</DialogTitle>
             <DialogContent>
               <Grid container spacing={2} mt={1}>
-                {[
-                  { name: 'id', label: 'ID', type: 'number' },
-                  { name: 'title', label: 'Title' },
-                  { name: 'date', label: 'Date', type: 'date' },
-                  { name: 'location', label: 'Location' },
-                  { name: 'seats', label: 'Seats', type: 'number' },
-                  { name: 'image', label: 'Image URL' },
-                  { name: 'type', label: 'Type' },
-                  { name: 'details', label: 'Details' },
-                  { name: 'price', label: 'Price', type: 'number' },
-                ].map(({ name, label, type }) => (
-                  <Grid item xs={12} sm={6} key={name}>
-                    <TextField
-                      fullWidth
-                      label={label}
-                      name={name}
-                      type={type || 'text'}
-                      value={newEvent[name]}
-                      onChange={handleChange}
-                      error={Boolean(errors[name])}
-                      helperText={errors[name]}
-                      InputLabelProps={type === 'date' ? { shrink: true } : {}}
-                    />
-                  </Grid>
-                ))}
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Title"
+                    name="title"
+                    value={newEvent.title}
+                    onChange={handleChange}
+                    error={Boolean(errors.title)}
+                    helperText={errors.title}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Date"
+                    name="date"
+                    type="datetime-local"
+                    value={newEvent.date}
+                    onChange={handleChange}
+                    error={Boolean(errors.date)}
+                    helperText={errors.date}
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    select
+                    label="Category"
+                    name="category"
+                    value={newEvent.category}
+                    onChange={handleChange}
+                    error={Boolean(errors.category)}
+                    helperText={errors.category}
+                  >
+                    {categories.map((category) => (
+                      <MenuItem key={category} value={category}>
+                        {category}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Location"
+                    name="location"
+                    value={newEvent.location}
+                    onChange={handleChange}
+                    error={Boolean(errors.location)}
+                    helperText={errors.location}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Address"
+                    name="address"
+                    value={newEvent.address}
+                    onChange={handleChange}
+                    error={Boolean(errors.address)}
+                    helperText={errors.address}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Description"
+                    name="description"
+                    multiline
+                    rows={4}
+                    value={newEvent.description}
+                    onChange={handleChange}
+                    error={Boolean(errors.description)}
+                    helperText={errors.description}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Total Seats"
+                    name="total_seats"
+                    type="number"
+                    value={newEvent.total_seats}
+                    onChange={handleChange}
+                    error={Boolean(errors.total_seats)}
+                    helperText={errors.total_seats}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Price per Seat"
+                    name="price_per_seat"
+                    type="number"
+                    value={newEvent.price_per_seat}
+                    onChange={handleChange}
+                    error={Boolean(errors.price_per_seat)}
+                    helperText={errors.price_per_seat}
+                  />
+                </Grid>
               </Grid>
             </DialogContent>
             <DialogActions>
@@ -296,14 +397,17 @@ export default function AdminDashboard() {
             </DialogActions>
           </Dialog>
 
-          {/* Snackbar */}
+          
           <Snackbar
             open={snackbarOpen}
-            autoHideDuration={1000}
+            autoHideDuration={3000}
             onClose={() => setSnackbarOpen(false)}
-            message="Event created successfully!"
             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          />
+          >
+            <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
         </Box>
       </Box>
     </Fade>
