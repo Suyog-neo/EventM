@@ -28,19 +28,49 @@ import EventSeatIcon from '@mui/icons-material/EventSeat';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import { userAllEvents } from '../../apis/event';
-
+import { seatBook } from '../../apis/userSeatBook'
 export default function EventList() {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-
-
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [open, setOpen] = useState(false);
+  const [showSeats, setShowSeats] = useState(false);
+  const [selectedSeats, setSelectedSeats] = useState([]);
+  const [snack, setSnack] = useState({ open: false, message: '', severity: 'success' });
 
-  const handleClickOpen = () => setOpen(true);
+
   const handleClose = () => setOpen(false);
+
+  const handleClickOpen = (event) => {
+    setSelectedEvent(event);
+    setOpen(true);
+  };
+  const handleSeatToggle = (seatNumber) => {
+    setSelectedSeats((prev) =>
+      prev.includes(seatNumber)
+        ? prev.filter((seat) => seat !== seatNumber)
+        : [...prev, seatNumber]
+    );
+  };
+  const handleConfirmBooking = async () => {
+    console.log("Selected Seats:", selectedSeats);
+    console.log("Event ID:", selectedEvent?.id);
+
+    try {
+      const res = await seatBook({ seat_number: selectedSeats[0], event_id: selectedEvent.id })
+      console.log(res.data.message)
+      setSnack({ open: true, message: res.data.message , severity: 'success' });
+    } catch (error) {
+      console.log(error.message)
+    }
+    setTimeout(() => {
+      handleClose();
+    }, 200);
+  };
+
 
   useEffect(() => {
     fetchEvents();
@@ -139,88 +169,164 @@ export default function EventList() {
 
         <Grid container spacing={4} sx={{ justifyContent: { xs: 'flex-start', lg: 'center' } }}>
           {filteredEvents.map((event) => (
-            <Grid item xs={12} md={3} lg={3} key={event.id} >
-              <Card
-                sx={{
-                  width: { sm: '60vw', xs: '90vw', lg: '19vw' },
-                  height: 450,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  borderRadius: 2,
-                  transition: 'transform 0.2s',
-                  '&:hover': {
-                    transform: 'scale(1.02)',
-                  },
-                }}
-              >
-                {/* onClick={() => navigate(`/user/event/${event.id}`)} */}
-                <CardActionArea sx={{ height: '100%' }} >
-                  <CardMedia
-                    component="img"
-                    height="45%"
-                    image={`http://172.21.0.206:8000/${event.event_image}`}
-                    alt={event.title}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = '/fallbackimg.svg';
-                    }}
-                  />
-                  <CardContent sx={{ height: '55%' }}>
-                    <Box>
-                      <Typography gutterBottom variant="h6" noWrap>
-                        {event.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: .5, height: 40, overflow: 'hidden' }}>
-                        {event.description}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <LocationOnIcon color="action" />
-                        <Typography variant="body2" noWrap>{event.location}</Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <CalendarTodayIcon color="action" />
-                        <Typography variant="body2">
-                          {new Date(event.date).toLocaleDateString()}
+            <>
+              <Grid item xs={12} md={3} lg={3} key={event.id} >
+                <Card
+                  sx={{
+                    width: { sm: '60vw', xs: '90vw', lg: '19vw' },
+                    height: 450,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRadius: 2,
+                    transition: 'transform 0.2s',
+                    '&:hover': {
+                      transform: 'scale(1.02)',
+                    },
+                  }}
+                >
+
+                  <CardActionArea sx={{ height: '100%' }} >
+                    <CardMedia
+                      component="img"
+                      height="45%"
+                      image={`http://172.21.0.206:8000/${event.event_image}`}
+                      alt={event.title}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/fallbackimg.svg';
+                      }}
+                      loading='lazy'
+                    />
+                    <CardContent sx={{ height: '55%' }}>
+                      <Box>
+                        <Typography gutterBottom variant="h6" noWrap>
+                          {event.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: .5, height: 40, overflow: 'hidden' }}>
+                          {event.description}
                         </Typography>
                       </Box>
-
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <AttachMoneyIcon color="action" />
-                          <Typography variant="body2">₹{event.price_per_seat}</Typography>
+                          <LocationOnIcon color="action" />
+                          <Typography variant="body2" noWrap>{event.location}</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <EventSeatIcon color="action" />
+                          <CalendarTodayIcon color="action" />
                           <Typography variant="body2">
-                            {event.available_seats} seats available
+                            {new Date(event.date).toLocaleDateString()}
                           </Typography>
                         </Box>
+
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <AttachMoneyIcon color="action" />
+                            <Typography variant="body2">₹{event.price_per_seat}</Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <EventSeatIcon color="action" />
+                            <Typography variant="body2">
+                              {event.available_seats} seats available
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <Button onClick={() => handleClickOpen(event)} variant='contained'>Book Event</Button>
                       </Box>
-                      <Button onClick={handleClickOpen} variant='contained'>Book Event</Button>
-                    </Box>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            </Grid>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              </Grid>
+            </>
           ))}
         </Grid>
 
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Confirm Action</DialogTitle>
+        <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+          <DialogTitle>Book Event</DialogTitle>
           <DialogContent>
-            <DialogContentText>
-              Are you sure you want to perform this action?
-            </DialogContentText>
+            {selectedEvent ? (
+              <>
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={`http://172.21.0.206:8000/${selectedEvent.event_image}`}
+                  alt={selectedEvent.title}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/fallbackimg.svg';
+                  }}
+                  sx={{ borderRadius: 2, mb: 2 }}
+                />
+
+                <Typography variant="h6" gutterBottom>
+                  {selectedEvent.title}
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  {selectedEvent.description}
+                </Typography>
+                <Typography variant="body2">
+                  📍 {selectedEvent.location}
+                </Typography>
+                <Typography variant="body2">
+                  📅 {new Date(selectedEvent.date).toLocaleDateString()}
+                </Typography>
+                <Typography variant="body2">
+                  💰 ₹{selectedEvent.price_per_seat}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 2 }}>
+                  🪑 {selectedEvent.available_seats} seats available
+                </Typography>
+
+                <Button variant="outlined" onClick={() => setShowSeats(!showSeats)}>
+                  {showSeats ? 'Hide Seats' : 'Select Seat'}
+                </Button>
+                {showSeats && (
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="body2" gutterBottom>
+                      🎫 Available Seats:
+                    </Typography>
+                    <Grid container spacing={1}>
+                      {Array.from({ length: selectedEvent.available_seats }).map((_, i) => {
+                        const seatNumber = i + 1;
+                        const isSelected = selectedSeats.includes(seatNumber);
+
+                        return (
+                          <Grid item xs={3} key={seatNumber}>
+                            <Button
+                              fullWidth
+                              size="small"
+                              variant="outlined"
+                              onClick={() => handleSeatToggle(seatNumber)}
+                              sx={{
+                                borderColor: '#2196f3',
+                                backgroundColor: isSelected ? '#2196f3' : 'transparent',
+                                color: isSelected ? 'white' : 'inherit',
+                                '&:hover': {
+                                  backgroundColor: isSelected ? '#1976d2' : '#e3f2fd',
+                                },
+                              }}
+                            >
+                              Seat {seatNumber}
+                            </Button>
+                          </Grid>
+                        );
+                      })}
+                    </Grid>
+                  </Box>
+                )}
+
+              </>
+            ) : (
+              <Typography>Loading event details...</Typography>
+            )}
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleClose} variant="contained" color="primary">
-              Confirm
+            <Button variant="contained" onClick={handleConfirmBooking}>
+              Confirm Booking
             </Button>
           </DialogActions>
         </Dialog>
+
 
         {filteredEvents.length === 0 && (
           <Typography variant="h6" textAlign="center" sx={{ mt: 4 }}>

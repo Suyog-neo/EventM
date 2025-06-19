@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
@@ -14,9 +14,24 @@ import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
 import EventIcon from '@mui/icons-material/Event';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import BackButton from '../../components/BackButton';
+import { getSeatBookData } from '../../apis/userSeatBook'
 
 export default function EventBookings() {
-  const bookings = useSelector((state) => state.bookings);
+  const [eventBookHistory, seteventBookHistory] = useState([]);
+
+  const handleOnFetchBookingHistory = async () => {
+    try {
+      const res = await getSeatBookData();
+      seteventBookHistory(res.data.data);
+      console.log(res.data)
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
+
+  useEffect(() => {
+    handleOnFetchBookingHistory();
+  }, [])
 
   return (
     <Fade in timeout={500}>
@@ -45,9 +60,9 @@ export default function EventBookings() {
           My Bookings
         </Typography>
 
-        {bookings.length === 0 ? (
+        {eventBookHistory.length === 0 ? (
 
-          <Box v align="center" color="text.secondary">
+          <Box  align="center" color="text.secondary">
             <Box component='img' src='/noresultsfound.svg'
               sx={{
                 height: { xs: '30vh', lg: '20vh' },
@@ -79,7 +94,7 @@ export default function EventBookings() {
 
         ) : (
           <Grid container spacing={4} justifyContent="center">
-            {bookings.map((event, i) => (
+            {eventBookHistory.map((event, i) => (
               <Grid
                 item
                 xs={12}
