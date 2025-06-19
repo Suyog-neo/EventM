@@ -137,9 +137,9 @@ export default function EventList() {
         </Box>
 
 
-        <Grid container  spacing={4} sx={{ justifyContent: { xs: 'flex-start', lg: 'center' } }}>
+        <Grid container spacing={4} sx={{ justifyContent: { xs: 'flex-start', lg: 'center' } }}>
           {filteredEvents.map((event) => (
-            <Grid item xs={12} md={3} lg={3} key={event.id} onClick={handleClickOpen}> 
+            <Grid item xs={12} md={3} lg={3} key={event.id} >
               <Card
                 sx={{
                   width: { sm: '60vw', xs: '90vw', lg: '19vw' },
@@ -198,7 +198,7 @@ export default function EventList() {
                           </Typography>
                         </Box>
                       </Box>
-
+                      <Button onClick={handleClickOpen} variant='contained'>Book Event</Button>
                     </Box>
                   </CardContent>
                 </CardActionArea>
