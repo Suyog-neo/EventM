@@ -12,8 +12,14 @@ import {
   IconButton,
   CircularProgress,
   Alert,
-  Snackbar,
+  Snackbar, Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button
 } from '@mui/material';
+
 import SearchIcon from '@mui/icons-material/Search';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -29,6 +35,12 @@ export default function EventList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   useEffect(() => {
     fetchEvents();
@@ -62,7 +74,7 @@ export default function EventList() {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+      <Box sx={{ display: 'flex', justifyContent: { lg: 'center' }, alignItems: { lg: 'center' }, minHeight: '100vh' }}>
         <CircularProgress />
       </Box>
     );
@@ -70,7 +82,7 @@ export default function EventList() {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#caf0f8', py: 4, px: 2 }}>
-      <Box sx={{ maxWidth: '1200px', mx: 'auto' }}>
+      <Box sx={{ mx: 'auto' }}>
         {/* Header */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2, position: 'relative' }}>
           <IconButton
@@ -98,7 +110,7 @@ export default function EventList() {
           </Typography>
         </Box>
 
-        
+
         <Box
           sx={{
             display: 'flex',
@@ -120,17 +132,17 @@ export default function EventList() {
                 </InputAdornment>
               ),
             }}
-            sx={{ maxWidth: 400 }}
+            sx={{ maxWidth: { xs: '100vw', lg: 400 } }}
           />
         </Box>
 
-       
-        <Grid container spacing={3} justifyContent="center">
+
+        <Grid container  spacing={4} sx={{ justifyContent: { xs: 'flex-start', lg: 'center' } }}>
           {filteredEvents.map((event) => (
-            <Grid item key={event.id}>
+            <Grid item xs={12} md={3} lg={3} key={event.id} onClick={handleClickOpen}> 
               <Card
                 sx={{
-                  width: 320,
+                  width: { sm: '60vw', xs: '90vw', lg: '19vw' },
                   height: 450,
                   display: 'flex',
                   flexDirection: 'column',
@@ -141,23 +153,24 @@ export default function EventList() {
                   },
                 }}
               >
-                <CardActionArea sx={{ height: '100%' }} onClick={() => navigate(`/user/event/${event.id}`)}>
+                {/* onClick={() => navigate(`/user/event/${event.id}`)} */}
+                <CardActionArea sx={{ height: '100%' }} >
                   <CardMedia
                     component="img"
-                    height="180"
-                    image={event.event_image ? `http://172.21.0.215:8000${event.event_image}` : 'https://via.placeholder.com/400x200?text=Event+Image'}
+                    height="45%"
+                    image={`http://172.21.0.206:8000/${event.event_image}`}
                     alt={event.title}
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = 'https://via.placeholder.com/400x200?text=Event+Image';
+                      e.target.src = '/fallbackimg.svg';
                     }}
                   />
-                  <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <CardContent sx={{ height: '55%' }}>
                     <Box>
                       <Typography gutterBottom variant="h6" noWrap>
                         {event.title}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, height: 40, overflow: 'hidden' }}>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: .5, height: 40, overflow: 'hidden' }}>
                         {event.description}
                       </Typography>
                     </Box>
@@ -172,16 +185,20 @@ export default function EventList() {
                           {new Date(event.date).toLocaleDateString()}
                         </Typography>
                       </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <AttachMoneyIcon color="action" />
-                        <Typography variant="body2">₹{event.price_per_seat}</Typography>
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <AttachMoneyIcon color="action" />
+                          <Typography variant="body2">₹{event.price_per_seat}</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <EventSeatIcon color="action" />
+                          <Typography variant="body2">
+                            {event.available_seats} seats available
+                          </Typography>
+                        </Box>
                       </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <EventSeatIcon color="action" />
-                        <Typography variant="body2">
-                          {event.available_seats} seats available
-                        </Typography>
-                      </Box>
+
                     </Box>
                   </CardContent>
                 </CardActionArea>
@@ -189,6 +206,21 @@ export default function EventList() {
             </Grid>
           ))}
         </Grid>
+
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Confirm Action</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Are you sure you want to perform this action?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button onClick={handleClose} variant="contained" color="primary">
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         {filteredEvents.length === 0 && (
           <Typography variant="h6" textAlign="center" sx={{ mt: 4 }}>
