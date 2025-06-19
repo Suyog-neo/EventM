@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -22,7 +22,7 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { adminCreateEvent, adminAllEvents } from '../../apis/event';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -35,13 +35,14 @@ import {
 } from 'chart.js';
 import Carousel from '../../components/Carousel';
 import AdBanner from '../../components/AdBanner';
-import { adminCreateEvent } from '../../apis/event';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const events = useSelector((state) => state.events);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [open, setOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -61,7 +62,14 @@ export default function AdminDashboard() {
     address: '',
   });
 
-  const categories = ['Technology', 'Entertainment', 'Business', 'Art', 'Sports', 'Wellness'];
+  const categories = [
+    { id: 1, name: 'Sports' },
+    { id: 2, name: 'Technology' },
+    { id: 3, name: 'Entertainment' },
+    { id: 4, name: 'Business' },
+    { id: 5, name: 'Art' },
+    { id: 6, name: 'Wellness' },
+  ];
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -83,11 +91,18 @@ export default function AdminDashboard() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setNewEvent((prev) => ({
-      ...prev,
-      [name]: value,
-      ...(name === 'total_seats' && { available_seats: value }),
-    }));
+    if (name === 'category') {
+      setNewEvent((prev) => ({
+        ...prev,
+        category: value,
+      }));
+    } else {
+      setNewEvent((prev) => ({
+        ...prev,
+        [name]: value,
+        ...(name === 'total_seats' && { available_seats: value }),
+      }));
+    }
   };
 
   const validateFields = () => {
@@ -115,6 +130,7 @@ export default function AdminDashboard() {
     try {
       const eventData = {
         ...newEvent,
+        category: parseInt(newEvent.category, 10),
         total_seats: parseInt(newEvent.total_seats),
         available_seats: parseInt(newEvent.total_seats),
         price_per_seat: parseFloat(newEvent.price_per_seat),
@@ -167,12 +183,32 @@ export default function AdminDashboard() {
     },
   ];
 
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await adminAllEvents();
+        if (response.data && Array.isArray(response.data.data)) {
+          setEvents(response.data.data);
+        } else {
+          setError('Failed to fetch events');
+        }
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to fetch events');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
+
   const chartData = {
     labels: events.map((e) => e.title),
     datasets: [
       {
         label: 'Seats Left',
-        data: events.map((e) => e.available_seats ?? 0), 
+        data: events.map((e) => e.available_seats ?? 0),
         backgroundColor: 'rgba(63, 81, 181, 0.6)',
       },
     ],
@@ -276,7 +312,13 @@ export default function AdminDashboard() {
             <Typography variant="h5" fontWeight="bold" mb={2} color="#3f51b5" textAlign="center">
               Analytics
             </Typography>
-            <Bar data={chartData} options={chartOptions} />
+            {loading ? (
+              <Typography align="center" sx={{ py: 4 }}>Loading chart...</Typography>
+            ) : error ? (
+              <Typography color="error" align="center" sx={{ py: 4 }}>{error}</Typography>
+            ) : (
+              <Bar data={chartData} options={chartOptions} />
+            )}
           </Box>
 
           
@@ -319,9 +361,9 @@ export default function AdminDashboard() {
                     error={Boolean(errors.category)}
                     helperText={errors.category}
                   >
-                    {categories.map((category) => (
-                      <MenuItem key={category} value={category}>
-                        {category}
+                    {categories.map((cat) => (
+                      <MenuItem key={cat.id} value={cat.id}>
+                        {cat.name}
                       </MenuItem>
                     ))}
                   </TextField>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteEvent } from '../../redux/slices/eventsSlice';
 import {
@@ -16,19 +16,25 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  TextField,
+  MenuItem,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Pagination from '@mui/material/Pagination';
 import { useNavigate } from 'react-router-dom';
+import { adminAllEvents, adminEditEvents } from '../../apis/event';
 
 export default function ManageEvents() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const events = useSelector((state) => state.events);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const eventsPerPage = 7;
-
 
   const [selected, setSelected] = useState([]);
 
@@ -37,9 +43,50 @@ export default function ManageEvents() {
   const [deleteMode, setDeleteMode] = useState(null); 
   const [eventToDelete, setEventToDelete] = useState(null); 
 
+  // Category mapping for edit form
+  const categories = [
+    { id: 1, name: 'Sports' },
+    { id: 2, name: 'Technology' },
+    { id: 3, name: 'Entertainment' },
+    { id: 4, name: 'Business' },
+    { id: 5, name: 'Art' },
+    { id: 6, name: 'Wellness' },
+  ];
+
+  // Edit dialog state
+  const [editOpen, setEditOpen] = useState(false);
+  const [editEvent, setEditEvent] = useState(null);
+  const [editError, setEditError] = useState(null);
+  const [editLoading, setEditLoading] = useState(false);
+  const [editSuccess, setEditSuccess] = useState(null);
+
+  // Snackbar state for edit success
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState('');
+
   const handlePageChange = (event, value) => {
     setPage(value);
   };
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await adminAllEvents();
+        if (response.data && Array.isArray(response.data.data)) {
+          setEvents(response.data.data);
+        } else {
+          setError('Failed to fetch events');
+        }
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to fetch events');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
 
   const paginatedEvents = events.slice(
     (page - 1) * eventsPerPage,
@@ -97,6 +144,60 @@ export default function ManageEvents() {
     setEventToDelete(null);
   };
 
+  const handleEditClick = (event) => {
+    setEditEvent({ ...event });
+    setEditOpen(true);
+    setEditError(null);
+    setEditSuccess(null);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditEvent((prev) => ({
+      ...prev,
+      [name]: name === 'category' ? parseInt(value, 10) : value,
+    }));
+  };
+
+  const handleEditClose = () => {
+    setEditOpen(false);
+    setEditEvent(null);
+    setEditError(null);
+    setEditSuccess(null);
+  };
+
+  const handleEditSubmit = async () => {
+    setEditLoading(true);
+    setEditError(null);
+    setEditSuccess(null);
+    try {
+      const { id, event_image, ...updateData } = editEvent;
+      // Convert empty offer to null
+      if (updateData.offer === '') updateData.offer = null;
+      // Only include event_image if it's a File (for future extensibility)
+      if (event_image instanceof File) {
+        updateData.event_image = event_image;
+      }
+      const response = await adminEditEvents(id, updateData);
+      if (response.data && response.data.status === 'success') {
+        setEditSuccess('Event updated successfully!');
+        // Update event in local state
+        setEvents((prev) => prev.map((ev) => (ev.id === id ? { ...ev, ...updateData } : ev)));
+        setSnackbarMsg(response.data.message || 'Event updated successfully!');
+        setSnackbarOpen(true);
+        setTimeout(() => {
+          handleEditClose();
+        }, 1000);
+      } else {
+        setEditError('Failed to update event');
+      }
+    } catch (err) {
+      setEditError(err.response?.data?.message || 'Failed to update event');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -142,7 +243,11 @@ export default function ManageEvents() {
           mt: 2,
         }}
       >
-        {events.length === 0 ? (
+        {loading ? (
+          <Typography align="center" sx={{ py: 4 }}>Loading events...</Typography>
+        ) : error ? (
+          <Typography color="error" align="center" sx={{ py: 4 }}>{error}</Typography>
+        ) : events.length === 0 ? (
           <Typography
             variant="body1"
             align="center"
@@ -194,13 +299,25 @@ export default function ManageEvents() {
                   key={e.id}
                   divider
                   secondaryAction={
-                    <IconButton
-                      edge="end"
-                      color="error"
-                      onClick={() => handleSingleDeleteClick(e.id)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+                    <>
+                      <IconButton
+                        edge="end"
+                        color="primary"
+                        onClick={() => handleEditClick(e)}
+                        sx={{ mr: 1 }}
+                        aria-label="Edit"
+                      >
+                        <span role="img" aria-label="edit">✏️</span>
+                      </IconButton>
+                      <IconButton
+                        edge="end"
+                        color="error"
+                        onClick={() => handleSingleDeleteClick(e.id)}
+                        aria-label="Delete"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </>
                   }
                   sx={{
                     '& .MuiListItemText-primary': {
@@ -224,7 +341,7 @@ export default function ManageEvents() {
                   <ListItemText
                     id={`checkbox-list-label-${e.id}`}
                     primary={e.title}
-                    secondary={`📍 ${e.location} | 📅 ${e.date} | 💲 ${e.price}`}
+                    secondary={`📍 ${e.location} | 📅 ${e.date} | 💲 ${e.price_per_seat}`}
                   />
                 </ListItem>
               ))}
@@ -258,6 +375,126 @@ export default function ManageEvents() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Edit Event Dialog */}
+      <Dialog open={editOpen} onClose={handleEditClose} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Event</DialogTitle>
+        <DialogContent>
+          {editEvent && (
+            <Box component="form" sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <TextField
+                label="Title"
+                name="title"
+                value={editEvent.title || ''}
+                onChange={handleEditChange}
+                fullWidth
+              />
+              <TextField
+                label="Date"
+                name="date"
+                type="datetime-local"
+                value={editEvent.date ? editEvent.date.slice(0, 16) : ''}
+                onChange={handleEditChange}
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+              />
+              <TextField
+                select
+                label="Category"
+                name="category"
+                value={editEvent.category || ''}
+                onChange={handleEditChange}
+                fullWidth
+              >
+                {categories.map((cat) => (
+                  <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                label="Location"
+                name="location"
+                value={editEvent.location || ''}
+                onChange={handleEditChange}
+                fullWidth
+              />
+              <TextField
+                label="Address"
+                name="address"
+                value={editEvent.address || ''}
+                onChange={handleEditChange}
+                fullWidth
+              />
+              <TextField
+                label="Description"
+                name="description"
+                value={editEvent.description || ''}
+                onChange={handleEditChange}
+                fullWidth
+                multiline
+                rows={3}
+              />
+              <TextField
+                label="Total Seats"
+                name="total_seats"
+                type="number"
+                value={editEvent.total_seats || ''}
+                onChange={handleEditChange}
+                fullWidth
+              />
+              <TextField
+                label="Available Seats"
+                name="available_seats"
+                type="number"
+                value={editEvent.available_seats || ''}
+                onChange={handleEditChange}
+                fullWidth
+              />
+              <TextField
+                label="Price per Seat"
+                name="price_per_seat"
+                type="number"
+                value={editEvent.price_per_seat || ''}
+                onChange={handleEditChange}
+                fullWidth
+              />
+              <TextField
+                label="Offer"
+                name="offer"
+                value={editEvent.offer || ''}
+                onChange={handleEditChange}
+                fullWidth
+              />
+              <TextField
+                label="Status"
+                name="status"
+                value={editEvent.status || ''}
+                onChange={handleEditChange}
+                fullWidth
+              />
+            </Box>
+          )}
+          {editError && <Typography color="error" sx={{ mt: 2 }}>{editError}</Typography>}
+          {editSuccess && <Typography color="success.main" sx={{ mt: 2 }}>{editSuccess}</Typography>}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleEditClose} color="secondary">Cancel</Button>
+          <Button onClick={handleEditSubmit} color="primary" variant="contained" disabled={editLoading}>
+            {editLoading ? 'Saving...' : 'Save'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Success Snackbar */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity="success" sx={{ width: '100%' }}>
+          {snackbarMsg}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
