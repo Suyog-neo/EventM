@@ -242,7 +242,7 @@ export default function Navbar() {
           <Typography variant="body1" sx={{ fontSize: '20px' }}><strong>Name:</strong> {user?.name || 'John Doe'}</Typography>
           <Typography variant="body1" sx={{ fontSize: '20px' }}><strong>Email:</strong> {user?.email || 'johndoe@example.com'}</Typography>
           <Typography variant="body1" sx={{ fontSize: '20px' }}><strong>Role:</strong> {role || 'User'}</Typography>
-          <Typography variant="body1" sx={{ fontSize: '20px' }}><strong>Member Since:</strong> {user?.joined || '2024-01-01'}</Typography>
+          <Typography variant="body1" sx={{ fontSize: '20px' }}><strong>Member Since:</strong> {user?.created_at || '2024-01-01'}</Typography>
           <Box sx={{ display: 'flex', justifyContent: "flex-end", mt: '10px', }} >
             <Button variant="contained" sx={{ height: '4.5vh', width: '8vw' }}
               onClick={handleModalClose}>
