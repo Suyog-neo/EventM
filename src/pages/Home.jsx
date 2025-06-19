@@ -10,7 +10,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { keyframes } from '@emotion/react';
 
-// Animation Keyframes
+
 const fadeInScale = keyframes`
   0% { opacity: 0; transform: scale(0.9); }
   100% { opacity: 1; transform: scale(1); }
@@ -49,14 +49,14 @@ export default function Home() {
         overflow: 'hidden',
       }}
     >
-      {/* Enhanced card styling and added animation for better UI */}
+      
       <Card
         sx={{
           px: { xs: 4, sm: 6 },
           py: { xs: 4, sm: 6 },
           width: { xs: '90%', sm: '70%', md: '45%' },
           textAlign: 'center',
-          backgroundColor: '#f5f5f5', // Updated to match uniform theme
+          backgroundColor: '#f5f5f5', 
           borderRadius: 6,
           boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
           backdropFilter: 'blur(12px)',
@@ -68,7 +68,7 @@ export default function Home() {
           },
         }}
       >
-        {/* Enhanced text styles for better differentiation */}
+        
         <Typography
           variant="h3"
           fontWeight={800}

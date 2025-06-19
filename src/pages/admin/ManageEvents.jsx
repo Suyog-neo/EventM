@@ -29,13 +29,13 @@ export default function ManageEvents() {
   const [page, setPage] = useState(1);
   const eventsPerPage = 7;
 
-  // For multiple select
+
   const [selected, setSelected] = useState([]);
 
-  // For confirmation dialog
+  
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [deleteMode, setDeleteMode] = useState(null); // 'single' or 'multiple'
-  const [eventToDelete, setEventToDelete] = useState(null); // id of single event to delete
+  const [deleteMode, setDeleteMode] = useState(null); 
+  const [eventToDelete, setEventToDelete] = useState(null); 
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -46,34 +46,34 @@ export default function ManageEvents() {
     page * eventsPerPage
   );
 
-  // Toggle select one event
+  
   const toggleSelect = (id) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
     );
   };
 
-  // Select all events on current page
+  
   const selectAllOnPage = () => {
     const currentPageIds = paginatedEvents.map((e) => e.id);
     const allSelected = currentPageIds.every((id) => selected.includes(id));
     if (allSelected) {
-      // unselect all
+     
       setSelected((prev) => prev.filter((id) => !currentPageIds.includes(id)));
     } else {
-      // add all
+      
       setSelected((prev) => [...new Set([...prev, ...currentPageIds])]);
     }
   };
 
-  // Open confirmation dialog for single delete
+ 
   const handleSingleDeleteClick = (id) => {
     setDeleteMode('single');
     setEventToDelete(id);
     setConfirmOpen(true);
   };
 
-  // Open confirmation dialog for multiple delete
+ 
   const handleMultipleDeleteClick = () => {
     if (selected.length === 0) return;
     setDeleteMode('multiple');

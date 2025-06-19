@@ -29,7 +29,7 @@ function AppLayout() {
   const { isAuthenticated, role } = useSelector((state) => state.auth);
   const location = useLocation();
 
-  // Hide Navbar and Footer on these routes
+  
   const hideNavbarPaths = ['/login', '/home', '/signup'];
   const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
   const shouldShowFooter = !hideNavbarPaths.includes(location.pathname);
@@ -45,16 +45,16 @@ function AppLayout() {
     <Box sx={appBackgroundStyle}>
       {shouldShowNavbar && <Navbar />}
       <Routes>
-        {/* Default route goes to /home */}
+        
         <Route path="/" element={<Navigate to="/home" replace />} />
 
-        {/* Public Routes */}
+        
         <Route path="/home" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
          <Route path="/forgotpassword" element={<ForgotPass/>} />
 
-        {/* Protected Routes */}
+        
         {isAuthenticated ? (
           role === 'admin' ? (
             <>

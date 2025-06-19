@@ -1,4 +1,4 @@
-/* Remove horizontal and vertical scrolling from the entire application */
+
 html, body {
   overflow: hidden;
 }
