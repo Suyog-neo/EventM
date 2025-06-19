@@ -41,12 +41,12 @@ export default function UserDashboard() {
     {
       title: 'Upcoming Events',
       icon: <EventNoteIcon sx={{ fontSize: 40, color: '#f57c00' }} />,
-      onClick: () => navigate('/user/UpcomingEvents'),
+      onClick: () => navigate('/user/upcoming-events'),
     },
     {
       title: 'Exclusive Offers',
       icon: <LocalOfferIcon sx={{ fontSize: 40, color: '#388e3c' }} />,
-      onClick: () => navigate('/user/ExclusiveOffers'),
+      onClick: () => navigate('/user/exclusive-offers'),
     },
   ];
 

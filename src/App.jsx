@@ -18,6 +18,7 @@ import ManageEvents from './pages/admin/ManageEvents.jsx';
 import ViewBookings from './pages/admin/ViewBookings.jsx';
 import UpcomingEvents from './pages/user/UpcomingEvents.jsx';
 import ForgotPass from './pages/ForgotPass.jsx';
+import ExclusiveOffers from './pages/user/ExclusiveOffers.jsx';
 
 
 import Navbar from './components/Navbar.jsx';
@@ -65,6 +66,7 @@ function AppLayout() {
               <Route path="/user/events" element={<EventList />} />
               <Route path="/user/bookings" element={<EventBookings />} />
               <Route path="/user/upcoming-events" element={<UpcomingEvents />} />
+              <Route path="/user/exclusive-offers" element={<ExclusiveOffers />} />
               <Route path="*" element={<Navigate to="/user" replace />} />
             </>
           )
