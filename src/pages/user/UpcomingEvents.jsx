@@ -32,7 +32,7 @@ export default function UpcomingEvents() {
       try {
         const response = await userUpcoming();
         if (response.data && Array.isArray(response.data.data)) {
-          // Only show events with status 'upcoming'
+          // Only show events with status 'ongoing'
           setEvents(response.data.data.filter(e => e.status === 'ongoing'));
         } else {
           setError('Failed to fetch events');
@@ -86,12 +86,12 @@ export default function UpcomingEvents() {
         ) : events.length === 0 ? (
           <Typography align="center" sx={{ mt: 4 }}>No upcoming events available.</Typography>
         ) : (
-          <Grid container spacing={3} justifyContent="center" sx={{ mt: 4 }}>
+          <Grid container spacing={4} sx={{ justifyContent: { xs: 'flex-start', lg: 'center' }, mt: 4 }}>
             {events.map((event) => (
-              <Grid item key={event.id}>
+              <Grid item xs={12} md={3} lg={3} key={event.id}>
                 <Card
                   sx={{
-                    width: 320,
+                    width: { sm: '60vw', xs: '90vw', lg: '19vw' },
                     height: 450,
                     display: 'flex',
                     flexDirection: 'column',
@@ -105,19 +105,24 @@ export default function UpcomingEvents() {
                   <CardActionArea sx={{ height: '100%' }}>
                     <CardMedia
                       component="img"
-                      height="180"
-                      image={event.event_image || 'https://dummyimage.com/320x180/cccccc/000000&text=No+Image'}
+                      height="45%"
+                      image={`http://172.21.0.206:8000/${event.event_image}`}
                       alt={event.title}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/fallbackimg.svg';
+                      }}
+                      loading='lazy'
                     />
-                    <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <CardContent sx={{ height: '55%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                       <Box>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                           <Typography variant="h6" noWrap>
                             {event.title}
                           </Typography>
-                          <Chip label={event.category} size="small" color="primary" />
+                          {/* <Chip label={event.category} size="small" color="primary" /> */}
                         </Box>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, height: 40, overflow: 'hidden' }}>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1, height: 40, overflow: 'hidden' }}>
                           {event.description}
                         </Typography>
                       </Box>
