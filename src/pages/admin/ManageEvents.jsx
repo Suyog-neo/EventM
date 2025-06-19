@@ -20,6 +20,7 @@ import {
   MenuItem,
   Snackbar,
   Alert,
+  Grid,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -293,59 +294,53 @@ export default function ManageEvents() {
               </Button>
             </Box>
 
-            <List>
+            <Grid container spacing={2}>
               {paginatedEvents.map((e) => (
-                <ListItem
-                  key={e.id}
-                  divider
-                  secondaryAction={
-                    <>
+                <Grid item xs={12} sm={12} md={6} lg={4} key={e.id}>
+                  <Paper elevation={2} sx={{ p: 2, mb: 2, display: 'flex', flexDirection: 'column', gap: 1, minHeight: { xs: 180, sm: 200, md: 220 }, height: '100%', justifyContent: 'space-between', boxSizing: 'border-box', width: 300, maxWidth: 280, mx: 'auto' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Checkbox
+                        edge="start"
+                        checked={selected.includes(e.id)}
+                        onChange={() => toggleSelect(e.id)}
+                        tabIndex={-1}
+                        disableRipple
+                        inputProps={{ 'aria-labelledby': `checkbox-list-label-${e.id}` }}
+                        sx={{ mr: 1 }}
+                      />
+                      <Typography variant="h6" sx={{ flexGrow: 1, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' }, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 180 }}>{e.title}</Typography>
                       <IconButton
                         edge="end"
                         color="primary"
                         onClick={() => handleEditClick(e)}
-                        sx={{ mr: 1 }}
+                        sx={{ mr: 1, p: 0.75 }}
                         aria-label="Edit"
                       >
-                        <span role="img" aria-label="edit">✏️</span>
+                        <span role="img" aria-label="edit" style={{ fontSize: 18, display: 'inline-block', lineHeight: 1 }}>✏️</span>
                       </IconButton>
                       <IconButton
                         edge="end"
                         color="error"
                         onClick={() => handleSingleDeleteClick(e.id)}
                         aria-label="Delete"
+                        sx={{ p: 0.75 }}
                       >
-                        <DeleteIcon />
+                        <DeleteIcon fontSize="small" />
                       </IconButton>
-                    </>
-                  }
-                  sx={{
-                    '& .MuiListItemText-primary': {
-                      fontSize: { xs: '0.9rem', sm: '1rem', md: '1.2rem' },
-                    },
-                    '& .MuiListItemText-secondary': {
-                      fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' },
-                    },
-                  }}
-                >
-                  {/* Checkbox to select single event */}
-                  <Checkbox
-                    edge="start"
-                    checked={selected.includes(e.id)}
-                    onChange={() => toggleSelect(e.id)}
-                    tabIndex={-1}
-                    disableRipple
-                    inputProps={{ 'aria-labelledby': `checkbox-list-label-${e.id}` }}
-                    sx={{ mr: 2 }}
-                  />
-                  <ListItemText
-                    id={`checkbox-list-label-${e.id}`}
-                    primary={e.title}
-                    secondary={`📍 ${e.location} | 📅 ${e.date} | 💲 ${e.price_per_seat}`}
-                  />
-                </ListItem>
+                    </Box>
+                    <Typography variant="body2" sx={{ wordBreak: 'break-word', mb: 0.5 }}>
+                      📍 {e.location}
+                    </Typography>
+                    <Typography variant="body2" sx={{ wordBreak: 'break-word', mb: 0.5 }}>
+                      📅 {e.date}
+                    </Typography>
+                    <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                      💲 {e.price_per_seat}
+                    </Typography>
+                  </Paper>
+                </Grid>
               ))}
-            </List>
+            </Grid>
           </>
         )}
         <Pagination
@@ -381,96 +376,120 @@ export default function ManageEvents() {
         <DialogTitle>Edit Event</DialogTitle>
         <DialogContent>
           {editEvent && (
-            <Box component="form" sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <TextField
-                label="Title"
-                name="title"
-                value={editEvent.title || ''}
-                onChange={handleEditChange}
-                fullWidth
-              />
-              <TextField
-                label="Date"
-                name="date"
-                type="datetime-local"
-                value={editEvent.date ? editEvent.date.slice(0, 16) : ''}
-                onChange={handleEditChange}
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-              />
-              <TextField
-                select
-                label="Category"
-                name="category"
-                value={editEvent.category || ''}
-                onChange={handleEditChange}
-                fullWidth
-              >
-                {categories.map((cat) => (
-                  <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                label="Location"
-                name="location"
-                value={editEvent.location || ''}
-                onChange={handleEditChange}
-                fullWidth
-              />
-              <TextField
-                label="Address"
-                name="address"
-                value={editEvent.address || ''}
-                onChange={handleEditChange}
-                fullWidth
-              />
-              <TextField
-                label="Description"
-                name="description"
-                value={editEvent.description || ''}
-                onChange={handleEditChange}
-                fullWidth
-                multiline
-                rows={3}
-              />
-              <TextField
-                label="Total Seats"
-                name="total_seats"
-                type="number"
-                value={editEvent.total_seats || ''}
-                onChange={handleEditChange}
-                fullWidth
-              />
-              <TextField
-                label="Available Seats"
-                name="available_seats"
-                type="number"
-                value={editEvent.available_seats || ''}
-                onChange={handleEditChange}
-                fullWidth
-              />
-              <TextField
-                label="Price per Seat"
-                name="price_per_seat"
-                type="number"
-                value={editEvent.price_per_seat || ''}
-                onChange={handleEditChange}
-                fullWidth
-              />
-              <TextField
-                label="Offer"
-                name="offer"
-                value={editEvent.offer || ''}
-                onChange={handleEditChange}
-                fullWidth
-              />
-              <TextField
-                label="Status"
-                name="status"
-                value={editEvent.status || ''}
-                onChange={handleEditChange}
-                fullWidth
-              />
+            <Box component="form" sx={{ mt: 1 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Title"
+                    name="title"
+                    value={editEvent.title || ''}
+                    onChange={handleEditChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Date"
+                    name="date"
+                    type="datetime-local"
+                    value={editEvent.date ? editEvent.date.slice(0, 16) : ''}
+                    onChange={handleEditChange}
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="Category"
+                    name="category"
+                    value={editEvent.category || ''}
+                    onChange={handleEditChange}
+                    fullWidth
+                  >
+                    {categories.map((cat) => (
+                      <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Location"
+                    name="location"
+                    value={editEvent.location || ''}
+                    onChange={handleEditChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Address"
+                    name="address"
+                    value={editEvent.address || ''}
+                    onChange={handleEditChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Description"
+                    name="description"
+                    value={editEvent.description || ''}
+                    onChange={handleEditChange}
+                    fullWidth
+                    multiline
+                    rows={3}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Total Seats"
+                    name="total_seats"
+                    type="number"
+                    value={editEvent.total_seats || ''}
+                    onChange={handleEditChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Available Seats"
+                    name="available_seats"
+                    type="number"
+                    value={editEvent.available_seats || ''}
+                    onChange={handleEditChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Price per Seat"
+                    name="price_per_seat"
+                    type="number"
+                    value={editEvent.price_per_seat || ''}
+                    onChange={handleEditChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Offer"
+                    name="offer"
+                    value={editEvent.offer || ''}
+                    onChange={handleEditChange}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Status"
+                    name="status"
+                    value={editEvent.status || ''}
+                    onChange={handleEditChange}
+                    fullWidth
+                  />
+                </Grid>
+              </Grid>
             </Box>
           )}
           {editError && <Typography color="error" sx={{ mt: 2 }}>{editError}</Typography>}

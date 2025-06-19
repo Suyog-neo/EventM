@@ -62,6 +62,8 @@ export default function Navbar() {
   const userActions = [
     { label: "View Events", path: "/user/events" },
     { label: "My Bookings", path: "/user/bookings" },
+    { label: "Upcoming Events", path: "/user/upcoming-events" },
+    { label: "Exclusive Offers", path: "/user/exclusive-offers" },
   ];
 
   const adminActions = [
@@ -99,7 +101,8 @@ export default function Navbar() {
             onClick={() => navigate(action.path)}
           >
             <ListItemIcon>
-              <AccountCircleIcon />
+              {/* <AccountCircleIcon /> */}
+              <Typography variant="h6" component="span">•</Typography>
             </ListItemIcon>
             <ListItemText primary={action.label} />
           </ListItem>
