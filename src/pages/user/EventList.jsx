@@ -23,11 +23,12 @@ import SearchIcon from '@mui/icons-material/Search';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import EventSeatIcon from '@mui/icons-material/EventSeat';
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import { userAllEvents } from '../../apis/event';
 import { seatBook, getSeatsAvailable } from '../../apis/userSeatBook'
+import IP_ADD from '../../apis/ip';
 export default function EventList() {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
@@ -40,7 +41,6 @@ export default function EventList() {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [availableSeats, setAvailableSeats] = useState([]);
   const [snack, setSnack] = useState({ open: false, message: '', severity: 'success' });
-
 
   const handleClose = () => setOpen(false);
 
@@ -67,8 +67,12 @@ export default function EventList() {
     );
   };
   const handleConfirmBooking = async () => {
+    if (selectedSeats.length < 1) {
+      setSnack({ open: true, message: 'Please Select seat', severity: 'warning' });
+      return;
+    }
     try {
-      const res = await seatBook({ seat_number:  selectedSeats[0], event_id: selectedEvent.id })
+      const res = await seatBook({ seat_number: selectedSeats[0], event_id: selectedEvent.id })
       console.log(res.data.message)
       setSnack({ open: true, message: res.data.message, severity: 'success' });
     } catch (error) {
@@ -206,7 +210,7 @@ export default function EventList() {
                     <CardMedia
                       component="img"
                       height="45%"
-                      image={`http://172.21.0.206:8000/${event.event_image}`}
+                      image={`${IP_ADD}/${event.event_image}`}
                       alt={event.title}
                       onError={(e) => {
                         e.target.onerror = null;
@@ -228,22 +232,30 @@ export default function EventList() {
                           <LocationOnIcon color="action" />
                           <Typography variant="body2" noWrap>{event.location}</Typography>
                         </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <CalendarTodayIcon color="action" />
-                          <Typography variant="body2">
-                            {new Date(event.date).toLocaleDateString()}
-                          </Typography>
-                        </Box>
 
                         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <AttachMoneyIcon color="action" />
+                            <CurrencyRupeeIcon sx={{ color: '#FF0000' }} />
                             <Typography variant="body2">₹{event.price_per_seat}</Typography>
                           </Box>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <EventSeatIcon color="action" />
+                            <CalendarTodayIcon color="action" />
                             <Typography variant="body2">
+                              {new Date(event.date).toLocaleDateString()}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                              <ChairIcon sx={{ color: 'green', paddingRight: '6px' }} />
                               {event.available_seats} seats available
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                              <ChairIcon sx={{ color: 'action', paddingRight: '6px' }} />
+                              {event.total_seats} Total seats
                             </Typography>
                           </Box>
                         </Box>
@@ -265,7 +277,7 @@ export default function EventList() {
                 <CardMedia
                   component="img"
                   height="200"
-                  image={`http://172.21.0.206:8000/${selectedEvent.event_image}`}
+                  image={`${IP_ADD}/${selectedEvent.event_image}`}
                   alt={selectedEvent.title}
                   onError={(e) => {
                     e.target.onerror = null;
@@ -289,10 +301,14 @@ export default function EventList() {
                 <Typography variant="body2">
                   💰 ₹{selectedEvent.price_per_seat}
                 </Typography>
-                <Typography variant="body2" sx={{ mb: 2 }}>
-                  🪑 {selectedEvent.available_seats} seats available
+                <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                  <ChairIcon sx={{ color: 'green', paddingRight: '6px' }} />
+                  {selectedEvent.available_seats} seats available
                 </Typography>
-
+                <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <ChairIcon sx={{ paddingRight: '6px' }} />
+                  {selectedEvent.total_seats} Total seats
+                </Typography>
                 <Button variant="outlined" onClick={() => setShowSeats(!showSeats)}>
                   {showSeats ? 'Hide Seats' : 'Select Seat'}
                 </Button>
@@ -302,7 +318,7 @@ export default function EventList() {
                       🎫 Available Seats:
                     </Typography>
                     <Grid container spacing={1}>
-                      {Array.from({ length: selectedEvent.available_seats }).map((_, i) => {
+                      {Array.from({ length: selectedEvent.total_seats }).map((_, i) => {
                         const seatNumber = i + 1;
                         const isSelected = selectedSeats.includes(seatNumber);
                         const isBooked = BookedSeat.includes(seatNumber);

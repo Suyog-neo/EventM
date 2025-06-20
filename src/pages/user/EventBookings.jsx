@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-
+import IP_ADD from '../../apis/ip';
 import {
   Box,
   Typography,
@@ -16,7 +16,6 @@ import {
 
 } from '@mui/material';
 import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
-import EventIcon from '@mui/icons-material/Event';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import BackButton from '../../components/BackButton';
 import { getSeatBookData } from '../../apis/userSeatBook'
@@ -119,7 +118,7 @@ export default function EventBookings() {
                       <CardMedia
                         component="img"
                         height="45%"
-                        image={`http://172.21.0.206:8000/${event.eventimg}`}
+                        image={`${IP_ADD}/${event.eventimg}`}
                         alt={event.title}
                         onError={(e) => {
                           e.target.onerror = null;
@@ -141,7 +140,7 @@ export default function EventBookings() {
                             <LocationOnIcon color="action" />
                             <Typography variant="body2" noWrap>{event.event_location}</Typography>
                           </Box>
-                          <Box sx={{display:'flex' ,justifyContent:'space-between'}}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                               <CalendarTodayIcon color="action" />
                               <Typography variant="body2">
@@ -154,7 +153,7 @@ export default function EventBookings() {
                             </Box>
                           </Box>
                           <Box>
-                            <Typography>Seats : {event.seat.seat_number}</Typography>
+                            <Typography>Book Seats : {event.seat.seat_number}</Typography>
                           </Box>
                         </Box>
                         <Box
