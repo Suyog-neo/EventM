@@ -15,11 +15,10 @@ import {
   Snackbar, Dialog,
   DialogTitle,
   DialogContent,
-  DialogContentText,
   DialogActions,
-  Button
+  Button,
 } from '@mui/material';
-
+import ChairIcon from '@mui/icons-material/Chair';
 import SearchIcon from '@mui/icons-material/Search';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -28,7 +27,7 @@ import EventSeatIcon from '@mui/icons-material/EventSeat';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import { userAllEvents } from '../../apis/event';
-import { seatBook } from '../../apis/userSeatBook'
+import { seatBook, getSeatsAvailable } from '../../apis/userSeatBook'
 export default function EventList() {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
@@ -39,15 +38,27 @@ export default function EventList() {
   const [open, setOpen] = useState(false);
   const [showSeats, setShowSeats] = useState(false);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const [availableSeats, setAvailableSeats] = useState([]);
   const [snack, setSnack] = useState({ open: false, message: '', severity: 'success' });
 
 
   const handleClose = () => setOpen(false);
 
-  const handleClickOpen = (event) => {
+  const handleClickOpen = async (event) => {
     setSelectedEvent(event);
+    setSelectedSeats([]);
     setOpen(true);
+    try {
+      const res = await getSeatsAvailable(event.id);
+      setAvailableSeats(res.data.data.available_seats);
+      console.log(res.data.data.available_seats)
+    } catch (error) {
+      console.error("Error fetching seats:", error);
+      setAvailableSeats([]);
+    }
   };
+
+
   const handleSeatToggle = (seatNumber) => {
     setSelectedSeats((prev) =>
       prev.includes(seatNumber)
@@ -56,15 +67,14 @@ export default function EventList() {
     );
   };
   const handleConfirmBooking = async () => {
-    console.log("Selected Seats:", selectedSeats);
-    console.log("Event ID:", selectedEvent?.id);
-
     try {
-      const res = await seatBook({ seat_number: selectedSeats[0], event_id: selectedEvent.id })
+      const res = await seatBook({ seat_number:  selectedSeats[0], event_id: selectedEvent.id })
       console.log(res.data.message)
-      setSnack({ open: true, message: res.data.message , severity: 'success' });
+      setSnack({ open: true, message: res.data.message, severity: 'success' });
     } catch (error) {
       console.log(error.message)
+      setSnack({ open: true, message: error.response?.data?.message || error.message, severity: 'error' });
+
     }
     setTimeout(() => {
       handleClose();
@@ -109,6 +119,13 @@ export default function EventList() {
       </Box>
     );
   }
+
+
+  const available = availableSeats.map(Number);
+  const totalSeats = selectedEvent?.total_seats || 300; // fallback to 300
+  const allSeats = Array.from({ length: totalSeats }, (_, i) => i + 1);
+  const BookedSeat = allSeats.filter(seat => !available.includes(seat));
+
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#caf0f8', py: 4, px: 2 }}>
@@ -288,10 +305,11 @@ export default function EventList() {
                       {Array.from({ length: selectedEvent.available_seats }).map((_, i) => {
                         const seatNumber = i + 1;
                         const isSelected = selectedSeats.includes(seatNumber);
-
+                        const isBooked = BookedSeat.includes(seatNumber);
                         return (
-                          <Grid item xs={3} key={seatNumber}>
+                          <Grid item xs={3} md={3} lg={3} key={seatNumber} >
                             <Button
+                              disabled={BookedSeat.includes(seatNumber)}
                               fullWidth
                               size="small"
                               variant="outlined"
@@ -303,17 +321,20 @@ export default function EventList() {
                                 '&:hover': {
                                   backgroundColor: isSelected ? '#1976d2' : '#e3f2fd',
                                 },
+                                width: { sm: '20vw', xs: '21vw', lg: '5vw' },
+                                paddingLeft: { lg: '2px' }, marginLeft: { lg: "5px" }
                               }}
                             >
-                              Seat {seatNumber}
+                              <ChairIcon sx={{ color: isBooked ? 'lightgray' : isSelected ? 'white' : '#2196f3', paddingRight: '6px' }} />
+                              {seatNumber}
                             </Button>
+
                           </Grid>
                         );
                       })}
                     </Grid>
                   </Box>
                 )}
-
               </>
             ) : (
               <Typography>Loading event details...</Typography>
@@ -336,13 +357,18 @@ export default function EventList() {
       </Box>
 
       <Snackbar
-        open={!!error}
-        autoHideDuration={6000}
-        onClose={() => setError(null)}
+        open={snack.open}
+        autoHideDuration={3000}
+        onClose={() => setSnack({ ...snack, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setError(null)} severity="error" sx={{ width: '100%' }}>
-          {error}
+        <Alert
+          onClose={() => setSnack({ ...snack, open: false })}
+          severity={snack.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {snack.message}
         </Alert>
       </Snackbar>
     </Box>
