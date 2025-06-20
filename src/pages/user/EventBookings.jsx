@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import IP_ADD from '../../apis/ip';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { useRef } from 'react';
 import {
   Box,
   Typography,
@@ -36,20 +39,39 @@ export default function EventBookings() {
     setOpenDownloadTiket(true);
   }
   const handleClose = () => setOpenDownloadTiket(false);
+  const ticketRef = useRef();
 
-  const handleDownloadTicket = () => {
-    if (!eventSeatBookData.ticket_qr_img) return;
 
-    const imageURL = `${IP_ADD}/${eventSeatBookData.ticket_qr_img}`;
-    const fileName = `${eventSeatBookData.eventname || 'ticket'}.png`;
+  const handleDownloadTicketAsPDF = async () => {
+    if (!ticketRef.current) return;
 
-    const link = document.createElement('a');
-    link.href = imageURL;
-    link.setAttribute('download', fileName);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const canvas = await html2canvas(ticketRef.current, {
+      useCORS: true,
+      scale: 2
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+    // Calculate position to center the image
+    const x = (pdf.internal.pageSize.getWidth() - pdfWidth) / 2;
+    const y = (pdf.internal.pageSize.getHeight() - pdfHeight) / 2;
+
+    pdf.addImage(imgData, 'PNG', x, y, pdfWidth, pdfHeight);
+    pdf.save(`${eventSeatBookData.eventname || 'ticket'}.pdf`);
   };
+
+
+
 
 
   const handleOnFetchBookingHistory = async () => {
@@ -240,7 +262,7 @@ export default function EventBookings() {
                     borderRadius: 2,
                     boxShadow: 6,
                     overflow: 'visible',
-                  }
+                  },
                 }}
               >
                 <DialogTitle sx={{ textAlign: 'center' }}>
@@ -251,82 +273,55 @@ export default function EventBookings() {
                   <DialogContentText sx={{ mb: 1, textAlign: 'center' }}>
                     Download Ticket
                   </DialogContentText>
-                  <Box sx={{ width: '100%', backgroundColor: "transparent" }}>
+                  <Box
+                    ref={ticketRef}
+                    sx={{
+                      backgroundColor: '#fff',
+                      p: 2,
+                      border: '1px dashed #ccc',
+                      borderRadius: 3,
+                      textAlign: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 2,
+                    }}
+                  >
                     <CardMedia
                       component="img"
                       image={`${IP_ADD}/${eventSeatBookData.ticket_qr_img}`}
-                      alt={eventSeatBookData.title}
+                      alt="QR Code"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = '/fallbackimg.svg';
                       }}
                       loading="lazy"
                       sx={{
-                        width: { xs: '100%', lg: '100%' },
-                        height: { xs: 220, lg: 350 },
+                        width: 200,
+                        height: 200,
                         objectFit: 'contain',
                         borderRadius: 2,
-                        padding: 1,
-
-
                       }}
                     />
-                  </Box>
+                    <Box>
+                      <Typography variant="h6" fontWeight="bold" gutterBottom>
+                        Seat Numbers
+                      </Typography>
+                      <Typography variant="body1" gutterBottom>
+                        {eventSeatBookData.seats
+                          ?.map(seat => Number(seat.seat_number))
+                          .sort((a, b) => a - b)
+                          .join(', ')}
+                      </Typography>
 
-                  <Box
-                    sx={{
-                      backgroundColor: '#f0f0f0',
-                      p: 2,
-                      borderTop: '2px dashed #ccc',
-                      position: 'relative',
-                      textAlign: 'center',
-                      borderBottomLeftRadius: 16,
-                      borderBottomRightRadius: 16,
-                    }}
-                  >
-                    {/* Top semi-circles */}
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: '-10px',
-                        left: '-10px',
-                        width: 20,
-                        height: 20,
-                        backgroundColor: '#fff',
-                        borderRadius: '50%',
-                      }}
-                    />
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: '-10px',
-                        right: '-10px',
-                        width: 20,
-                        height: 20,
-                        backgroundColor: '#fff',
-                        borderRadius: '50%',
-                      }}
-                    />
-
-                    <Typography variant="body1">Seat</Typography>
-                    <Typography variant="h6" fontWeight="bold">
-                      {eventSeatBookData.seats?.map(seat => Number(seat.seat_number)).sort((a, b) => a - b).join(', ')}
-                    </Typography>
-                    <Typography variant="body2">Seat Price: ₹{eventSeatBookData.price_per_seat || 0}</Typography>
-                    <Typography variant="body2">Total Price: ₹{eventSeatBookData.price_per_seat * eventSeatBookData.seats?.length}</Typography>
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        bottom: -10,
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        width: 40,
-                        height: 20,
-                        backgroundColor: '#fff',
-                        borderTopLeftRadius: 20,
-                        borderTopRightRadius: 20,
-                      }}
-                    />
+                      <Typography variant="body2">
+                        Seat Price: ₹{eventSeatBookData.price_per_seat || 0}
+                      </Typography>
+                      <Typography variant="body2">
+                        Total Price: ₹
+                        {eventSeatBookData.price_per_seat * (eventSeatBookData.seats?.length || 0)}
+                      </Typography>
+                    </Box>
                   </Box>
                 </DialogContent>
 
@@ -335,7 +330,7 @@ export default function EventBookings() {
                     Cancel
                   </Button>
                   <Button
-                    onClick={handleDownloadTicket}
+                    onClick={handleDownloadTicketAsPDF}
                     variant="contained"
                     color="primary"
                   >
@@ -343,6 +338,8 @@ export default function EventBookings() {
                   </Button>
                 </DialogActions>
               </Dialog>
+
+
             </Box>
           </Grid>
         )}
