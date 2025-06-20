@@ -322,112 +322,96 @@ export default function AdminDashboard() {
           </Box>
 
           
-          <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
+          <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
             <DialogTitle>Create New Event</DialogTitle>
             <DialogContent>
-              <Grid container spacing={2} mt={1}>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Title"
-                    name="title"
-                    value={newEvent.title}
-                    onChange={handleChange}
-                    error={Boolean(errors.title)}
-                    helperText={errors.title}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Date"
-                    name="date"
-                    type="datetime-local"
-                    value={newEvent.date}
-                    onChange={handleChange}
-                    error={Boolean(errors.date)}
-                    helperText={errors.date}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    select
-                    label="Category"
-                    name="category"
-                    value={newEvent.category}
-                    onChange={handleChange}
-                    error={Boolean(errors.category)}
-                    helperText={errors.category}
-                  >
-                    {categories.map((cat) => (
-                      <MenuItem key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Location"
-                    name="location"
-                    value={newEvent.location}
-                    onChange={handleChange}
-                    error={Boolean(errors.location)}
-                    helperText={errors.location}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Address"
-                    name="address"
-                    value={newEvent.address}
-                    onChange={handleChange}
-                    error={Boolean(errors.address)}
-                    helperText={errors.address}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Description"
-                    name="description"
-                    multiline
-                    rows={4}
-                    value={newEvent.description}
-                    onChange={handleChange}
-                    error={Boolean(errors.description)}
-                    helperText={errors.description}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Total Seats"
-                    name="total_seats"
-                    type="number"
-                    value={newEvent.total_seats}
-                    onChange={handleChange}
-                    error={Boolean(errors.total_seats)}
-                    helperText={errors.total_seats}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Price per Seat"
-                    name="price_per_seat"
-                    type="number"
-                    value={newEvent.price_per_seat}
-                    onChange={handleChange}
-                    error={Boolean(errors.price_per_seat)}
-                    helperText={errors.price_per_seat}
-                  />
-                </Grid>
-              </Grid>
+              <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+                <TextField
+                  fullWidth
+                  label="Title"
+                  name="title"
+                  value={newEvent.title}
+                  onChange={handleChange}
+                  error={Boolean(errors.title)}
+                  helperText={errors.title}
+                />
+                <TextField
+                  fullWidth
+                  label="Category"
+                  name="category"
+                  select
+                  value={newEvent.category}
+                  onChange={handleChange}
+                  error={Boolean(errors.category)}
+                  helperText={errors.category}
+                >
+                  {categories.map((cat) => (
+                    <MenuItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <TextField
+                  fullWidth
+                  label="Description"
+                  name="description"
+                  multiline
+                  rows={3}
+                  value={newEvent.description}
+                  onChange={handleChange}
+                  error={Boolean(errors.description)}
+                  helperText={errors.description}
+                />
+                <TextField
+                  fullWidth
+                  label="Date"
+                  name="date"
+                  type="date"
+                  value={newEvent.date}
+                  onChange={handleChange}
+                  error={Boolean(errors.date)}
+                  helperText={errors.date}
+                  InputLabelProps={{ shrink: true }}
+                />
+                <TextField
+                  fullWidth
+                  label="Location"
+                  name="location"
+                  value={newEvent.location}
+                  onChange={handleChange}
+                  error={Boolean(errors.location)}
+                  helperText={errors.location}
+                />
+                <TextField
+                  fullWidth
+                  label="Address"
+                  name="address"
+                  value={newEvent.address}
+                  onChange={handleChange}
+                  error={Boolean(errors.address)}
+                  helperText={errors.address}
+                />
+                <TextField
+                  fullWidth
+                  label="Total Seats"
+                  name="total_seats"
+                  type="number"
+                  value={newEvent.total_seats}
+                  onChange={handleChange}
+                  error={Boolean(errors.total_seats)}
+                  helperText={errors.total_seats}
+                />
+                <TextField
+                  fullWidth
+                  label="Price per Seat"
+                  name="price_per_seat"
+                  type="number"
+                  value={newEvent.price_per_seat}
+                  onChange={handleChange}
+                  error={Boolean(errors.price_per_seat)}
+                  helperText={errors.price_per_seat}
+                />
+              </Box>
             </DialogContent>
             <DialogActions>
               <Button onClick={handleClose} color="secondary">
