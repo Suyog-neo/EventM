@@ -121,7 +121,6 @@ export default function UpcomingEvents() {
                           <Typography variant="h6" noWrap>
                             {event.title}
                           </Typography>
-                          {/* <Chip label={event.category} size="small" color="primary" /> */}
                         </Box>
                         <Typography variant="body2" color="text.secondary" sx={{ mb: 1, height: 40, overflow: 'hidden' }}>
                           {event.description}

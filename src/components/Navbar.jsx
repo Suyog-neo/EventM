@@ -83,8 +83,6 @@ export default function Navbar() {
     setDrawerOpen(open);
   };
 
-  const token = useSelector((state) => state.auth.role);
-  console.log(token)
 
   const drawerContent = (
     <Box
