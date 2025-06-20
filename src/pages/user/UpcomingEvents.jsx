@@ -12,6 +12,7 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
+import IP_ADD from '../../apis/ip';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -106,7 +107,7 @@ export default function UpcomingEvents() {
                     <CardMedia
                       component="img"
                       height="45%"
-                      image={`http://172.21.0.206:8000/${event.event_image}`}
+                      image={`${IP_ADD}/${event.event_image}`}
                       alt={event.title}
                       onError={(e) => {
                         e.target.onerror = null;
