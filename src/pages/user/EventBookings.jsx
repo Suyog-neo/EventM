@@ -61,8 +61,6 @@ export default function EventBookings() {
     const imgProps = pdf.getImageProperties(imgData);
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-    // Calculate position to center the image
     const x = (pdf.internal.pageSize.getWidth() - pdfWidth) / 2;
     const y = (pdf.internal.pageSize.getHeight() - pdfHeight) / 2;
 
@@ -92,11 +90,11 @@ export default function EventBookings() {
       <Box
         sx={{
           position: 'relative',
-          height: 'calc(93vh - 100px)',
+          height: {},
           overflowY: 'auto',
           px: 2,
           pt: 2,
-          pb: 1,
+          pb: 8,
           boxSizing: 'border-box',
           background: '#caf0f8',
         }}
@@ -125,7 +123,7 @@ export default function EventBookings() {
               }}
             >
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ display: 'flex', justifyContent: { xs: 'center' } }}>
               <Typography ariant="h5" component={Link} to='/user/events'
                 sx={{
                   border: '2px solid red',
@@ -147,9 +145,9 @@ export default function EventBookings() {
           </Box>
 
         ) : (
-          <Grid container spacing={4} sx={{ justifyContent: { xs: 'flex-start', lg: 'center' } }}>
+          <Grid container spacing={4} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', lg: 'center' } }}>
             {eventBookHistory.map((event, index) => (
-              <Grid item xs={12} md={3} lg={3} key={index} >
+              <Grid item xs={12} lg={3} key={index} >
                 <Card
                   sx={{
                     width: { sm: '60vw', xs: '90vw', lg: '19vw' },

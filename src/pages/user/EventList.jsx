@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -72,7 +72,7 @@ export default function EventList() {
       return;
     }
     try {
-      const res = await seatBook({ seat_number: selectedSeats[0], event_id: selectedEvent.id })
+      const res = await seatBook({ seat_number: selectedSeats, event_id: selectedEvent.id })
       console.log(res.data.message)
       setSnack({ open: true, message: res.data.message, severity: 'success' });
     } catch (error) {
@@ -82,7 +82,7 @@ export default function EventList() {
     }
     setTimeout(() => {
       handleClose();
-    }, 200);
+    }, 100);
   };
 
 
@@ -126,10 +126,9 @@ export default function EventList() {
 
 
   const available = availableSeats.map(Number);
-  const totalSeats = selectedEvent?.total_seats || 300; // fallback to 300
+  const totalSeats = selectedEvent?.total_seats || 0;
   const allSeats = Array.from({ length: totalSeats }, (_, i) => i + 1);
   const BookedSeat = allSeats.filter(seat => !available.includes(seat));
-
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#caf0f8', py: 4, px: 2 }}>
@@ -190,82 +189,83 @@ export default function EventList() {
 
         <Grid container spacing={4} sx={{ justifyContent: { xs: 'flex-start', lg: 'center' } }}>
           {filteredEvents.map((event) => (
-            <>
-              <Grid item xs={12} md={3} lg={3} key={event.id} >
-                <Card
-                  sx={{
-                    width: { sm: '60vw', xs: '90vw', lg: '19vw' },
-                    height: 450,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    borderRadius: 2,
-                    transition: 'transform 0.2s',
-                    '&:hover': {
-                      transform: 'scale(1.02)',
-                    },
-                  }}
-                >
+            <Grid item xs={12} md={3} lg={3} key={event.id} >
+              <Card
+                sx={{
+                  width: { sm: '60vw', xs: '90vw', lg: '19vw' },
+                  height: 450,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  borderRadius: 2,
+                  transition: 'transform 0.2s',
+                  '&:hover': {
+                    transform: 'scale(1.02)',
+                  },
+                }}
+              >
 
-                  <CardActionArea sx={{ height: '100%' }} >
-                    <CardMedia
-                      component="img"
-                      height="45%"
-                      image={`${IP_ADD}/${event.event_image}`}
-                      alt={event.title}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = '/fallbackimg.svg';
-                      }}
-                      loading='lazy'
-                    />
-                    <CardContent sx={{ height: '55%' }}>
-                      <Box>
-                        <Typography gutterBottom variant="h6" noWrap>
-                          {event.title}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: .5, height: 40, overflow: 'hidden' }}>
-                          {event.description}
-                        </Typography>
+                <CardActionArea sx={{ height: '100%' }} >
+                  <CardMedia
+                    component="img"
+                    height="45%"
+                    image={`${IP_ADD}/${event.event_image}`}
+                    alt={event.title}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/fallbackimg.svg';
+                    }}
+                    loading='lazy'
+                  />
+                  <CardContent sx={{ height: '55%' }}>
+                    <Box>
+                      <Typography gutterBottom variant="h6" noWrap>
+                        {event.title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: .5, height: 40, overflow: 'hidden' }}>
+                        {event.description}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <LocationOnIcon color="action" />
+                        <Typography variant="body2" noWrap>{event.location}</Typography>
                       </Box>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <LocationOnIcon color="action" />
-                          <Typography variant="body2" noWrap>{event.location}</Typography>
+                          <CurrencyRupeeIcon sx={{ color: '#FF0000' }} />
+                          <Typography variant="body2">₹{event.price_per_seat}</Typography>
                         </Box>
-
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <CurrencyRupeeIcon sx={{ color: '#FF0000' }} />
-                            <Typography variant="body2">₹{event.price_per_seat}</Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <CalendarTodayIcon color="action" />
-                            <Typography variant="body2">
-                              {new Date(event.date).toLocaleDateString()}
-                            </Typography>
-                          </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <CalendarTodayIcon color="action" />
+                          <Typography variant="body2">
+                            {new Date(event.date).toLocaleDateString()}
+                          </Typography>
                         </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                              <ChairIcon sx={{ color: 'green', paddingRight: '6px' }} />
-                              {event.available_seats} seats available
-                            </Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                              <ChairIcon sx={{ color: 'action', paddingRight: '6px' }} />
-                              {event.total_seats} Total seats
-                            </Typography>
-                          </Box>
-                        </Box>
-                        <Button onClick={() => handleClickOpen(event)} variant='contained'>Book Event</Button>
                       </Box>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-            </>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <ChairIcon sx={{ color: 'green', paddingRight: '6px' }} />
+                            {event.available_seats} seats available
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <ChairIcon sx={{ color: 'action', paddingRight: '6px' }} />
+                            {event.total_seats} Total seats
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Button fullWidth variant="contained" onClick={() => handleClickOpen(event)}>
+                        Book Event
+                      </Button>
+                    </Box>
+                  </CardContent>
+                </CardActionArea>
+
+              </Card>
+            </Grid>
           ))}
         </Grid>
 
